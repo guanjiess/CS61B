@@ -2,7 +2,7 @@ package IntList;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-
+/*  按ctrl+shift+/  可以出来这种区块注释 */
 public class AddConstantTest {
 
     @Test

@@ -14,6 +14,7 @@ public class IntListExercises {
             head.first += c;
             head = head.rest;
         }
+        head.first += c;
     }
 
     /**
@@ -26,7 +27,9 @@ public class IntListExercises {
     public static void setToZeroIfMaxFEL(IntList L) {
         IntList p = L;
         while (p != null) {
-            if (firstDigitEqualsLastDigit(max(p))) {
+            int currentMax = max(p);
+            boolean firstEqualsLast = firstDigitEqualsLastDigit(currentMax);
+            if (firstEqualsLast) {
                 p.first = 0;
             }
             p = p.rest;
@@ -51,7 +54,7 @@ public class IntListExercises {
      */
     public static boolean firstDigitEqualsLastDigit(int x) {
         int lastDigit = x % 10;
-        while (x > 10) {
+        while (x >= 10) {
             x = x / 10;
         }
         int firstDigit = x % 10;
@@ -67,7 +70,7 @@ public class IntListExercises {
      */
     public static boolean squarePrimes(IntList lst) {
         // Base Case: we have reached the end of the list
-        if (lst == null) {
+/*        if (lst == null) {
             return false;
         }
 
@@ -77,6 +80,38 @@ public class IntListExercises {
             lst.first *= lst.first;
         }
 
-        return currElemIsPrime || squarePrimes(lst.rest);
+        return currElemIsPrime || squarePrimes(lst.rest);*/
+        IntList p = lst;
+        boolean currElemIsPrime = false;
+        boolean changed = false;
+        for(int i=0; i<lst.size(); i++){
+            currElemIsPrime = Primes.isPrime(p.first);
+            if(currElemIsPrime){
+                p.first *= p.first;
+                changed = true;
+            }
+            p = p.rest;
+        }
+       /* while (p.rest != null){
+            currElemIsPrime = Primes.isPrime(p.first);
+            if(currElemIsPrime){
+                p.first *= p.first;
+                changed = true;
+            }
+            p = p.rest;
+        }*/
+        return changed;
+    }
+
+    public static void  main(String[] args){
+
+        IntList lst = IntList.of(14, 15, 16, 17, 18);
+        System.out.println(lst.toString());
+// Output: 14 -> 15 -> 16 -> 17 -> 18
+        boolean changed = squarePrimes(lst);
+        System.out.println(lst.toString());
+// Output: 14 -> 15 -> 16 -> 289 -> 18
+        System.out.println(changed);
+// Output: true
     }
 }
