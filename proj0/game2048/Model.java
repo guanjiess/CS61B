@@ -1,5 +1,6 @@
 package game2048;
 
+import java.awt.event.HierarchyBoundsAdapter;
 import java.util.Formatter;
 import java.util.Observable;
 
@@ -33,6 +34,7 @@ public class Model extends Observable {
         gameOver = false;
     }
 
+    public int getScore(){return score;}
     /** A new 2048 game where RAWVALUES contain the values of the tiles
      * (0 if null). VALUES is indexed by (row, col) with (0, 0) corresponding
      * to the bottom-left corner. Used for testing purposes. */
@@ -107,20 +109,57 @@ public class Model extends Observable {
      *    and the trailing tile does not.
      * */
     public boolean tilt(Side side) {
+        board.setViewingPerspective(side);
         boolean changed;
         changed = false;
-
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        for(int c = 0; c < board.size(); c++){
+            boolean [] mergedIndex = new boolean[board.size()];
+            for(int r = board.size()-1; r >= 0; r--){
 
+                Tile t = board.tile(c, r);
+                int destination = findDestination(board, c, r, mergedIndex);
+                if( t != null){
+                    boolean merged = false;
+                    if (destination != r) {
+                        merged = board.move(c, destination, t);
+                        changed = true;
+                        if(merged & !mergedIndex[destination]){
+                            score += board.tile(c,destination).value();
+                            mergedIndex[destination] = true;
+                        }
+                    }
+                }
+
+            }
+
+        }
         checkGameOver();
         if (changed) {
             setChanged();
         }
+        board.setViewingPerspective(Side.NORTH);
         return changed;
     }
 
+    public int findDestination(Board board, int c, int r, boolean []mergedIndex){
+        int destination = r;
+        if(board.tile(c,r) != null){
+            for(int k = r; k < board.size(); k++){
+                if(board.tile(c, k) == null){
+                    destination = k;
+                }
+                else if(board.tile(c,r).value() == board.tile(c,k).value()){
+                    if(!mergedIndex[k]) {
+                        destination = k;
+                    }
+                }
+            }
+        }
+        return destination;
+    }
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
      */
@@ -138,6 +177,15 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        int size = b.size();
+        for(int i=0; i<size; i++){
+            for(int j=0; j<size; j++){
+                Tile tmp = b.tile(i, j);
+                if(tmp == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +196,17 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int size = b.size();
+        for(int row=0; row<size; row++){
+            for(int col=0; col<size; col++) {
+                Tile tmp = b.tile(row, col);
+                if (tmp == null) {
+                    continue;
+                } else {
+                    if(tmp.value() == MAX_PIECE) return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,7 +218,76 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        int size = b.size();
+        if (Model.emptySpaceExists(b)){
+            return true;
+        }
+        for(int row=0; row<size; row++){
+            for(int col=0; col<size; col++){
+                Tile[] tmp = adjcent(b, row, col);
+                for(int k=0; k< tmp.length; k++){
+                    if (tmp[k].value() == b.tile(col,row).value()){
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
+    }
+    public static Tile[] adjcent(Board b, int row, int col){
+
+        int size = b.size();
+        int tileNumber = 0;
+        boolean corner = (row==0&col==0)|(row==0&col==(size-1))|(row==(size-1)&col ==0)|(row==(size-1)&col==(size-1));
+        boolean edge = (row==0 | row==(size-1) | col==(size-1) | col==0) & (!corner);
+        if(corner){
+            tileNumber = 2;
+            Tile[] adjcent = new Tile[tileNumber];
+            if(row==0&col==0){
+                adjcent[0] = b.tile(1,0);
+                adjcent[1] = b.tile(0,1);
+            } else if (row==0&col==(size-1)) {
+                adjcent[0] = b.tile(size-2,0);
+                adjcent[1] = b.tile(size-1,1);
+            } else if (row==(size-1)&col==0) {
+                adjcent[0] = b.tile(0,size-2);
+                adjcent[1] = b.tile(1,size-1);
+            }else {
+                adjcent[0] = b.tile(size-1,size-2);
+                adjcent[1] = b.tile(size-2,size-1);
+            }
+            return adjcent;
+
+        } else if (edge) {
+            tileNumber = 3;
+            Tile[] adjcent = new Tile[tileNumber];
+            if(row == 0){
+                adjcent[0] = b.tile(col-1,0);
+                adjcent[1] = b.tile(col+1,0);
+                adjcent[2] = b.tile(col,1);
+            } else if (row == size-1) {
+                adjcent[0] = b.tile(col-1,row);
+                adjcent[1] = b.tile(col+1,row);
+                adjcent[2] = b.tile(col,row-1);
+            } else if (col == 0) {
+                adjcent[0] = b.tile(col,row-1);
+                adjcent[1] = b.tile(col,row+1);
+                adjcent[2] = b.tile(col+1,row);
+            } else {
+                adjcent[0] = b.tile(col,row-1);
+                adjcent[1] = b.tile(col,row+1);
+                adjcent[2] = b.tile(col-1,row);
+            }
+            return adjcent;
+        } else{
+            tileNumber = 4;
+            Tile[] adjcent = new Tile[tileNumber];
+            adjcent[0] = b.tile(col-1,row);
+            adjcent[1] = b.tile(col+1,row);
+            adjcent[2] = b.tile(col,row-1);
+            adjcent[3] = b.tile(col,row+1);
+            return adjcent;
+        }
     }
 
 

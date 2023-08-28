@@ -172,10 +172,13 @@ public class TestModel extends TestUtils {
                 {4, 4, 0, 0},
         };
         updateModel(before, 0, 0, false);
+        System.out.println("before tilt, your score is :"+model.getScore());
         String prevBoard = model.toString();
         boolean changed = model.tilt(Side.WEST);
+        System.out.println("after tilt, your score is :"+model.getScore());
         checkChanged(Side.WEST, true, changed);
         checkModel(after, 4, 0, prevBoard, Side.WEST);
+
     }
 
     @Test
