@@ -3,6 +3,7 @@ public class SLList {
     private IntNode first;
     private int size;
     private IntNode sentinel;
+    private IntNode last;
     public SLList(){
         sentinel = new IntNode(63, null);
         size = 0;
@@ -35,6 +36,13 @@ public class SLList {
         }
         return p.item;
     }
+
+    public void addLast2(int x){
+        last.next = new IntNode(x, null);
+        last = last.next;
+        size += 1;
+    }
+
     private static int size(IntNode p){
         if (p.next == null){
             return 1;
@@ -52,6 +60,7 @@ public class SLList {
         L.addLast(20);
         System.out.println(L.getFirst());
         System.out.println(L.getLast());
+        System.out.println(L.getLast2());
         System.out.println(L.size());
     }
 

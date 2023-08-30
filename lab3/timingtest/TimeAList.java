@@ -1,6 +1,8 @@
 package timingtest;
 import edu.princeton.cs.algs4.Stopwatch;
 
+import java.nio.DoubleBuffer;
+
 /**
  * Created by hug.
  */
@@ -23,5 +25,23 @@ public class TimeAList {
 
     public static void timeAListConstruction() {
         // TODO: YOUR CODE HERE
+        int [] N = {1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000};
+        int size = N.length;
+        AList<Integer> Ns = new AList<Integer>();
+        AList<Integer> opCounts = new AList<Integer>();
+        AList<Double> times = new AList<Double>();
+        for(int k=0; k<N.length; k++){
+            Ns.addLast(N[k]);
+            opCounts.addLast(N[k]);
+            Stopwatch sw = new Stopwatch();
+            AList<Integer> newList = new AList<Integer>();
+            for(int j = 0; j < N[k]; j++){
+                newList.addLast(j);
+            }
+            double timeInSeconds = sw.elapsedTime();
+            times.addLast(timeInSeconds);
+        }
+        printTimingTable(Ns, times, opCounts);
+
     }
 }
