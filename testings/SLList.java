@@ -6,11 +6,13 @@ public class SLList {
     private IntNode last;
     public SLList(){
         sentinel = new IntNode(63, null);
+        last = new IntNode(64,null);
         size = 0;
     }
     public SLList(int x) {
         sentinel = new IntNode(63, null);
         sentinel.next = new IntNode(x, null);
+        last = sentinel.next;
         size = 1;
     }
 
@@ -58,9 +60,10 @@ public class SLList {
         L.addFirst(12);
         L.addFirst(13);
         L.addLast(20);
-        System.out.println(L.getFirst());
         System.out.println(L.getLast());
-        System.out.println(L.getLast2());
+        System.out.println(L.size());
+        L.addLast2(21);
+        System.out.println(L.getLast());
         System.out.println(L.size());
     }
 
