@@ -186,19 +186,5 @@ public class LinkedListDeque<T> {
             System.out.println(L.get(i));
             System.out.println(L.getRecursive(i));
         }
-
-//        System.out.println(L.size());
-//        L.addFirst(1);
-//        System.out.println(L.size());
-//        L.addLast(2);
-//        L.printDeque();
-//        System.out.println(L.removeFirst());
-//        L.printDeque();
-//        System.out.println(L.removeLast());
-//        L.printDeque();
-//        for(int i=0; i<L.size(); i++){
-//            System.out.println(L.get(i));
-//            System.out.println(L.getRecursive(i));
-//        }
     }
 }

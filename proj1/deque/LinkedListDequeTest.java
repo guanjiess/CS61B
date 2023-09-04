@@ -14,8 +14,6 @@ public class LinkedListDequeTest {
      * && is the "and" operation. */
     public void addIsEmptySizeTest() {
 
-        System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
-
         LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
 
 		assertTrue("A newly initialized LLDeque should be empty", lld1.isEmpty());
@@ -134,6 +132,6 @@ public class LinkedListDequeTest {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
         }
 
-        
+
     }
 }
