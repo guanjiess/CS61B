@@ -2,16 +2,16 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque  {
+public class LinkedListDeque<T> {
     private int size ;
     private Node sentinal;
     private Node tail ;
     public LinkedListDeque(){
-        sentinal = new Node(0,null, null);
+        sentinal = new Node(null,null, null);
         size = 0;
     }
     public LinkedListDeque(Node p){
-        sentinal = new Node(0,null, null);
+        sentinal = new Node(null,null, null);
         sentinal.next = p;
         size += 1;
     }
@@ -21,17 +21,17 @@ public class LinkedListDeque  {
         size = length;
     }
     public class Node{
-        public int item;
+        public T item;
         public Node next;
         public Node prev;
-        public Node(int i, Node n, Node p){
+        public Node(T i, Node n, Node p){
             item = i;
             prev = p;
             next = n;
         }
     }
 
-    public void addFirst(int item){
+    public void addFirst(T item){
         Node first = new Node(item, null, null);
         if(size == 0){
             sentinal.next = first;
@@ -46,7 +46,7 @@ public class LinkedListDeque  {
         size += 1;
     }
 
-    public void addLast(int item){
+    public void addLast(T item){
         Node last  = new Node(item, null, null);
         if(size == 0) {
             sentinal.next = last;
@@ -80,11 +80,11 @@ public class LinkedListDeque  {
         System.out.println();
     }
 
-    public int removeLast(){
+    public T removeLast(){
         if(size == 0){
-            return 0;
+            return null;
         }
-        int last = tail.item;
+        T last = tail.item;
         if(size == 1){
             sentinal.next.prev = null;
             sentinal.next = null;
@@ -98,11 +98,11 @@ public class LinkedListDeque  {
         return last;
     }
 
-    public int removeFirst(){
+    public T removeFirst(){
         if(size == 0){
-            return 0;
+            return null;
         }
-        int first = sentinal.next.item;
+        T first = sentinal.next.item;
         Node temp = sentinal.next;
         if(size == 1){
             temp.prev = null;
@@ -119,9 +119,9 @@ public class LinkedListDeque  {
         return first;
     }
 
-    public int get(int index){
+    public T get(int index){
         if(size == 0){
-            return 0;
+            return null;
         } else {
             Node temp = sentinal.next;
             for (int i=0; i<index; i++){
@@ -131,12 +131,15 @@ public class LinkedListDeque  {
         }
     }
 
-    public int getRecursive(int index){
+    public T getRecursive(int index){
+        if(size == 0){
+            return null;
+        }
         if(index == 0){
-            return sentinal.next.item;
+            return (T)sentinal.next.item;
         } else{
             LinkedListDeque L = new LinkedListDeque(sentinal.next, tail, size-1);
-            return L.getRecursive(index-1);
+            return (T)L.getRecursive(index-1);
         }
     }
 
@@ -181,8 +184,9 @@ public class LinkedListDeque  {
         L.printDeque();
         for(int i=0; i<L.size(); i++){
             System.out.println(L.get(i));
+            System.out.println(L.getRecursive(i));
         }
-        
+
 //        System.out.println(L.size());
 //        L.addFirst(1);
 //        System.out.println(L.size());
