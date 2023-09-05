@@ -8,6 +8,10 @@ public class Flik {
      *  @param b Value 2
      *  @return Whether a and b are the same */
     public static boolean isSameNumber(Integer a, Integer b) {
-        return a == b;
+//        System.out.print("a, b is "+ a + " " + b);
+        boolean answer = (a - b == 0);
+//        System.out.println(a == b);
+//        System.out.println(answer);
+        return answer;
     }
 }
