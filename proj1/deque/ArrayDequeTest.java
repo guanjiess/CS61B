@@ -77,9 +77,56 @@ public class ArrayDequeTest {
             L2.addFirst(i);
         }
         L2.printDeque();
-
-
+        ArrayDeque L3 = new ArrayDeque(-1,0, 33);
+        for(int i=0; i<33; i++){
+            L3.addFirst(i);
+        }
+        L3.printDeque();
+        for (int k=0; k<6; k++){
+            L3.removeLast();
+        }
+        L3.printDeque();
+        for (int k=0; k<6; k++){
+            L3.removeFirst();
+            L3.printDeque();
+        }
+    }
+    @Test
+    public void addTest(){
+        ArrayDeque a1 = new ArrayDeque(2, 3, 15);
+        for(int i=0; i<7; i++){
+            String message = String.format("Inserted item %d to first", i);
+            System.out.println(message);
+            a1.addFirst(i);
+            a1.printDeque();
+            a1.printItems();
+        }
 
     }
+
+    @Test
+    public void resizeTest(){
+        ArrayDeque a1 = new ArrayDeque(2, 3, 15);
+        for(int i=0; i<15; i++){
+            a1.addFirst(i+1);
+        }
+        a1.printDeque();
+        a1.addFirst(666);
+        a1.printDeque();
+        a1.printItems();
+        a1.addFirst(777);
+        a1.printDeque();
+        a1.printItems();
+        a1.addFirst(888);
+        a1.printDeque();
+        a1.printItems();
+        for(int i=0; i<12; i++){
+            a1.addFirst(i+1);
+        }
+        a1.printItems();
+        a1.addLast(95527);
+        a1.printItems();
+    }
+
 
 }

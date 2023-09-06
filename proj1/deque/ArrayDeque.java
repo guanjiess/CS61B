@@ -7,8 +7,9 @@ public class ArrayDeque {
     private int front ;
     private int rear ;
 
-    public  ArrayDeque(int head , int tail, int capacity){
-        items = new int [capacity];
+    public  ArrayDeque(int head , int tail, int new_capacity){
+        items = new int [new_capacity];
+        capacity = new_capacity;
         front = head;
         rear = tail;
         size = 0;
@@ -25,10 +26,13 @@ public class ArrayDeque {
         System.arraycopy(items,0,temp,0,size);
         items[0] = x;
         System.arraycopy(temp,0,items,1,size);*/
+        if(size == capacity){
+            resize(2*capacity);
+        }
         if(front == -1) {
             front = 0;
             rear = 0;
-        } else if (front == -0) {
+        } else if (front == 0) {
             front = capacity - 1;
         } else {
             front = front - 1;
@@ -38,6 +42,9 @@ public class ArrayDeque {
     }
 
     public void addLast (int x){
+        if(size == capacity){
+            resize(2*capacity);
+        }
         if(front == -1){
             front = 0;
             rear = 0;
@@ -61,6 +68,22 @@ public class ArrayDeque {
 
     public int size(){
         return size;
+    }
+
+    public void resize(int newCapacity){
+        // all the items must be copied to the new array
+        // and the order must be follow the original order, front -> rear
+        // for example,  4 3 2 1(rear) 5(front) 6 7 8, after resize, the sequence need to be
+        //5 6 7 8 4 3 2 1 0 0 0 0 ~~~~
+        int [] a = new int [newCapacity];
+        for(int i=0; i<capacity; i++){
+            int target = (front + i) % capacity;
+            a[i] = items[target];
+        }
+        items = a;
+        front = 0;
+        rear = capacity - 1;
+        capacity = newCapacity;
     }
 
     public void printDeque(){
@@ -123,5 +146,12 @@ public class ArrayDeque {
             wanted = items[target];
         }
         return wanted;
+    }
+
+    public void printItems(){
+        for(int k=0; k<capacity; k++){
+            System.out.print(items[k]+" ");
+        }
+        System.out.println();
     }
 }
