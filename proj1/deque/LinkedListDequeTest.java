@@ -172,5 +172,6 @@ public class LinkedListDequeTest {
         boolean equalTest8 = lld1.equals(lld3);
         boolean equalTest9 = lld2.equals(lld3);
 
+
     }
 }

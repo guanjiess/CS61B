@@ -1,28 +1,28 @@
 package deque;
 import java.util.Iterator;
-public class ArrayDeque {
+public class ArrayDeque <T>{
     private int size ;
     private int capacity ;
-    private int [] items ;
+    private Object [] items ;
     private int front ;
     private int rear ;
 
     public  ArrayDeque(int head , int tail, int new_capacity){
-        items = new int [new_capacity];
+        items = new Object[new_capacity];
         capacity = new_capacity;
         front = head;
         rear = tail;
         size = 0;
     }
     public ArrayDeque(){
-        items = new int[8];
+        items = new Object[8];
         front = -1;
         rear = -1;
         size = 0;
         capacity = 8;
     }
 
-    public void addFirst(int x){
+    public void addFirst(T x){
         /*int [] temp = new int[8];
         System.arraycopy(items,0,temp,0,size);
         items[0] = x;
@@ -42,7 +42,7 @@ public class ArrayDeque {
         size += 1;
     }
 
-    public void addLast (int x){
+    public void addLast (T x){
         if(size == capacity){
             resize(2*capacity);
         }
@@ -76,7 +76,7 @@ public class ArrayDeque {
         // and the order must be follow the original order, front -> rear
         // for example,  4 3 2 1(rear) 5(front) 6 7 8, after resize, the sequence need to be
         //5 6 7 8 4 3 2 1 0 0 0 0 ~~~~
-        int [] a = new int [newCapacity];
+        Object [] a = new Object [newCapacity];
         for(int i=0; i<capacity; i++){
             int target = (front + i) % capacity;
             a[i] = items[target];
@@ -95,14 +95,14 @@ public class ArrayDeque {
         System.out.println();
     }
 
-    public int removeLast(){
+    public T removeLast(){
         /*int last = items[rear];
         items[size-1] = 0;
         size -= 1;*/
         if(isEmpty()){
-            return 0;
+            return null;
         }
-        int last = items[rear];
+        T last = (T)items[rear];
         items[rear] = 0;
         if(size == 1){
             front = -1;
@@ -115,16 +115,16 @@ public class ArrayDeque {
         size -= 1;
         return last;
     }
-    public int removeFirst(){
+    public T removeFirst(){
         /*int first = items[0];
         int [] temp = new int [8];
         System.arraycopy(items, 1, temp, 0, size-1);
         items = temp;
         size -= 1;*/
         if(isEmpty()){
-            return 0;
+            return null;
         }
-        int first = items[front];
+        T first = (T)items[front];
         items[front] = 0;
         if(size == 1){
             front = -1;
@@ -138,13 +138,17 @@ public class ArrayDeque {
         return first;
     }
 
-    public int get(int index){
-        int wanted = 0;
+    public T get(int index){
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index out of bounds");
+        }
+        T wanted = null;
         if(rear - front > 0){
-            wanted = items[front+index];
-        } else if (rear - front < 0) {
+            wanted = (T)items[front+index];
+        }
+        if (rear - front < 0) {
             int target = (front + index) % capacity;
-            wanted = items[target];
+            wanted = (T)items[target];
         }
         return wanted;
     }
@@ -156,10 +160,10 @@ public class ArrayDeque {
         System.out.println();
     }
 
-    public Iterator<Integer> iterator(){
+    public Iterator<T> iterator(){
         return new ArrayDequeIterator();
     }
-    private class ArrayDequeIterator implements Iterator<Integer>{
+    private class ArrayDequeIterator implements Iterator<T>{
         private int wizPos;
         public ArrayDequeIterator(){
             wizPos = front;
@@ -169,14 +173,14 @@ public class ArrayDeque {
             return wizPos < size;
         }
         @Override
-        public Integer next() {
+        public T next() {
             if(hasNext()){
-                int elem = get(wizPos);
+                T elem = get(wizPos);
                 wizPos = wizPos + 1;
                 return elem;
             }
             else {
-                return 0;
+                return null;
             }
         }
     }

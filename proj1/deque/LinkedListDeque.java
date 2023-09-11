@@ -120,6 +120,9 @@ public class LinkedListDeque<T> {
     }
 
     public T get(int index){
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index out of bounds");
+        }
         if(size == 0){
             return null;
         } else {
@@ -132,6 +135,9 @@ public class LinkedListDeque<T> {
     }
 
     public T getRecursive(int index){
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index out of bounds");
+        }
         if(size == 0){
             return null;
         }

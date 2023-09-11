@@ -11,7 +11,7 @@ public class ArrayDequeTest {
 
     @Test
     public void addIsEmptySizeTest(){
-        ArrayDeque L = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L = new ArrayDeque(-1, 0, 8);
         assertTrue("This empty deque should return true", L.isEmpty());
         L.addFirst(1);
         assertEquals(1, L.size());
@@ -28,7 +28,7 @@ public class ArrayDequeTest {
 
     @Test
     public void getTest(){
-        ArrayDeque L = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L = new ArrayDeque(-1, 0, 8);
         for (int i=0; i<4; i++){
             L.addLast(i);
             System.out.println("Current size is: "+L.size());
@@ -45,7 +45,7 @@ public class ArrayDequeTest {
 
     @Test
     public void removeTest(){
-        ArrayDeque L = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L = new ArrayDeque(-1, 0, 8);
         for (int i=0; i<8; i++){
             L.addLast(i);
         }
@@ -67,12 +67,12 @@ public class ArrayDequeTest {
 
     @Test
     public void printTest(){
-        ArrayDeque L = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L = new ArrayDeque(-1, 0, 8);
         for (int i=0; i<8; i++){
             L.addLast(i);
         }
         L.printDeque();
-        ArrayDeque L2 = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L2 = new ArrayDeque(-1, 0, 8);
         for (int i=0; i<4; i++){
             L2.addLast(i);
         }
@@ -80,7 +80,7 @@ public class ArrayDequeTest {
             L2.addFirst(i);
         }
         L2.printDeque();
-        ArrayDeque L3 = new ArrayDeque(-1,0, 33);
+        ArrayDeque<Integer> L3 = new ArrayDeque(-1,0, 33);
         for(int i=0; i<33; i++){
             L3.addFirst(i);
         }
@@ -96,7 +96,7 @@ public class ArrayDequeTest {
     }
     @Test
     public void addTest(){
-        ArrayDeque a1 = new ArrayDeque(2, 3, 15);
+        ArrayDeque<Integer> a1 = new ArrayDeque(2, 3, 15);
         for(int i=0; i<7; i++){
             String message = String.format("Inserted item %d to first", i);
             System.out.println(message);
@@ -109,7 +109,7 @@ public class ArrayDequeTest {
 
     @Test
     public void resizeTest(){
-        ArrayDeque a1 = new ArrayDeque(2, 3, 15);
+        ArrayDeque<Integer> a1 = new ArrayDeque(2, 3, 15);
         for(int i=0; i<15; i++){
             a1.addFirst(i+1);
         }
@@ -133,7 +133,7 @@ public class ArrayDequeTest {
 
     @Test
     public void iteratorTest(){
-        ArrayDeque L = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L = new ArrayDeque(-1, 0, 8);
         for (int i=0; i<8; i++){
             L.addLast(i);
         }
@@ -141,9 +141,12 @@ public class ArrayDequeTest {
         L.printDeque();
         L.printItems();
         Iterator<Integer> iter = L.iterator();
-        for(int i=0; i< L.size()+1; i++){
-            System.out.println(iter.hasNext());
-            int iter_term = iter.next();
+        for(int i=0; i< L.size(); i++){
+//            System.out.println(iter.hasNext());
+            int iter_term = 0;
+            if(iter.hasNext()){
+                iter_term = iter.next();
+            }
             int expected_term = L.get(i);
             System.out.println(iter_term);
             if(i < L.size()) {
@@ -154,8 +157,8 @@ public class ArrayDequeTest {
 
     @Test
     public void equalsTest(){
-        ArrayDeque L1 = new ArrayDeque(-1, 0, 8);
-        ArrayDeque L2 = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L1 = new ArrayDeque(-1, 0, 8);
+        ArrayDeque<Integer> L2 = new ArrayDeque(-1, 0, 8);
         for(int i=0; i<10; i++){
             L1.addLast(i);
         }
