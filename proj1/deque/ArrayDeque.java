@@ -1,5 +1,5 @@
 package deque;
-
+import java.util.Iterator;
 public class ArrayDeque {
     private int size ;
     private int capacity ;
@@ -15,10 +15,11 @@ public class ArrayDeque {
         size = 0;
     }
     public ArrayDeque(){
-        items = null;
+        items = new int[8];
         front = -1;
         rear = -1;
         size = 0;
+        capacity = 8;
     }
 
     public void addFirst(int x){
@@ -154,4 +155,52 @@ public class ArrayDeque {
         }
         System.out.println();
     }
+
+    public Iterator<Integer> iterator(){
+        return new ArrayDequeIterator();
+    }
+    private class ArrayDequeIterator implements Iterator<Integer>{
+        private int wizPos;
+        public ArrayDequeIterator(){
+            wizPos = front;
+        }
+        @Override
+        public boolean hasNext() {
+            return wizPos < size;
+        }
+        @Override
+        public Integer next() {
+            if(hasNext()){
+                int elem = get(wizPos);
+                wizPos = wizPos + 1;
+                return elem;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
+
+    public boolean equals(Object o){
+        if(this == o){
+            return true;
+        }
+        if(o == null){
+            return false;
+        }
+        if(o.getClass() != this.getClass()){
+            return false;
+        }
+        ArrayDeque other = (ArrayDeque) o;
+        if( other.size() != this.size()){
+            return false;
+        }
+        for(int i=0; i<size; i++){
+            if(this.get(i) != other.get(i)){
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

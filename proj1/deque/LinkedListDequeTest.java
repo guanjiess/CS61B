@@ -134,4 +134,43 @@ public class LinkedListDequeTest {
 
 
     }
+
+    @Test
+    public void equalsTest(){
+        LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
+        LinkedListDeque<String> lld2 = new LinkedListDeque<String>();
+        LinkedListDeque<Integer> lld3 = new LinkedListDeque<>();
+        LinkedListDeque<Integer> lld4 = new LinkedListDeque<>();
+        String [] s1 = {"This", "is", "the", "first", "string"};
+        String [] s2 = {"This", "is", "the", "second", "string"};
+        String [] s1_copy = {"This", "is", "the", "first", "string"};
+        String [] s2_copy = {"This", "is", "the", "second", "string"};
+
+        lld1.addLast("We ");
+        lld1.addLast("added ");
+        lld1.addLast("a ");
+        lld1.addLast("few ");
+        lld1.addLast("checks.");
+        boolean equalTest1 = lld1.equals(lld2);
+        lld2.addLast("We ");
+        boolean equalTest2 = lld1.equals(lld2);
+        lld2.addLast("added ");
+        boolean equalTest3 = lld1.equals(lld2);
+        lld2.addLast("a ");
+        boolean equalTest4 = lld1.equals(lld2);
+        lld2.addLast("little ");
+        boolean equalTest5 = lld1.equals(lld2);
+        lld2.removeLast();
+        lld2.addLast("few ");
+        boolean equalTest6 = lld1.equals(lld2);
+        lld2.addLast("checks.");
+        boolean equalTest7 = lld1.equals(lld2);
+
+        for(int i=0; i<15; i++){
+            lld3.addFirst(i);
+        }
+        boolean equalTest8 = lld1.equals(lld3);
+        boolean equalTest9 = lld2.equals(lld3);
+
+    }
 }

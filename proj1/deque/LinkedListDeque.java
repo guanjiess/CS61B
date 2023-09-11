@@ -138,21 +138,62 @@ public class LinkedListDeque<T> {
         if(index == 0){
             return (T)sentinal.next.item;
         } else{
-            LinkedListDeque L = new LinkedListDeque(sentinal.next, tail, size-1);
+            LinkedListDeque<T> L = new LinkedListDeque<>(sentinal.next, tail, size-1);
             return (T)L.getRecursive(index-1);
         }
     }
 
-//    public boolean equals(Object o){
-//
-//    }
 
-//    public Iterator<T> iterator(){
-//
-//    }
+    public Iterator<T> iterator(){
+        return new LinkedDequeIterator();
+    }
+    private class LinkedDequeIterator implements Iterator<T>{
+        private Node wizPos;
+        public LinkedDequeIterator(){
+            wizPos = sentinal.next;
+        }
+        @Override
+        public boolean hasNext() {
+            return wizPos.next != null;
+        }
+        @Override
+        public T next() {
+            if(hasNext()){
+                wizPos = wizPos.next;
+                return wizPos.item;
+            }
+            else{
+                return null;
+            }
+        }
+    }
+
+    public boolean equals(Object o){
+        if(this == o){
+            return true;
+        }
+        if(o == null){
+            return false;
+        }
+        if(o.getClass() != this.getClass()){
+            return false;
+        }
+        LinkedListDeque<T> other = (LinkedListDeque<T>) o;
+        if( other.size() != this.size()){
+            return false;
+        }
+        for(int i=0; i<size; i++){
+            if(this.get(i) != other.get(i)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 
     public static void  main(String[] args){
-        LinkedListDeque L = new LinkedListDeque();
+        LinkedListDeque<Integer> L = new LinkedListDeque<>();
 //        L.addLast(999);
 //        for (int k=0; k<5;k++){
 //            L.addLast(k);
@@ -177,14 +218,19 @@ public class LinkedListDeque<T> {
             L.printDeque();
             System.out.println("remove one element, current size is: "+L.size());
         }
-        for(int i=0; i<7 ; i++){
-            L.addLast(i*i);
-            L.printDeque();
+        for (int i=0 ; i<7; i++){
+            L.addFirst(i);
         }
         L.printDeque();
+//        for(int i=0; i<L.size(); i++){
+//            System.out.println(L.get(i));
+//            System.out.println(L.getRecursive(i));
+//        }
+        Iterator<Integer> iter = L.iterator();
         for(int i=0; i<L.size(); i++){
-            System.out.println(L.get(i));
-            System.out.println(L.getRecursive(i));
+            System.out.println("Is iter has next item?: "+iter.hasNext());
+            System.out.println(iter.next());
         }
+        ;
     }
 }

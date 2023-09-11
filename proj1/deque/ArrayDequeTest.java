@@ -3,6 +3,9 @@ package deque;
 import org.checkerframework.checker.units.qual.A;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Iterator;
+
 import static org.junit.Assert.*;
 public class ArrayDequeTest {
 
@@ -126,6 +129,43 @@ public class ArrayDequeTest {
         a1.printItems();
         a1.addLast(95527);
         a1.printItems();
+    }
+
+    @Test
+    public void iteratorTest(){
+        ArrayDeque L = new ArrayDeque(-1, 0, 8);
+        for (int i=0; i<8; i++){
+            L.addLast(i);
+        }
+        L.addLast(999);
+        L.printDeque();
+        L.printItems();
+        Iterator<Integer> iter = L.iterator();
+        for(int i=0; i< L.size()+1; i++){
+            System.out.println(iter.hasNext());
+            int iter_term = iter.next();
+            int expected_term = L.get(i);
+            System.out.println(iter_term);
+            if(i < L.size()) {
+                assertEquals("Output data is not equal", expected_term, iter_term);
+            }
+        }
+    }
+
+    @Test
+    public void equalsTest(){
+        ArrayDeque L1 = new ArrayDeque(-1, 0, 8);
+        ArrayDeque L2 = new ArrayDeque(-1, 0, 8);
+        for(int i=0; i<10; i++){
+            L1.addLast(i);
+        }
+        for(int i=0; i<10; i++){
+            L2.addLast(i);
+        }
+        assertEquals(L1.equals(L2), true);
+        assertEquals(L2.equals(L1), true);
+        assertEquals(L1.equals(L2), L2.equals(L1));
+
     }
 
 
