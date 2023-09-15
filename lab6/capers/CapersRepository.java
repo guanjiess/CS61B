@@ -18,7 +18,7 @@ public class CapersRepository {
     static final File CWD = new File(System.getProperty("user.dir"));
 
     /** Main metadata folder. */
-    static final File CAPERS_FOLDER = null; // TODO Hint: look at the `join`
+    static final File CAPERS_FOLDER = join(CWD, ".capers"); // TODO Hint: look at the `join`
                                             //      function in Utils
 
     /**
@@ -31,7 +31,9 @@ public class CapersRepository {
      *    - story -- file containing the current story
      */
     public static void setupPersistence() {
-        // TODO
+        CAPERS_FOLDER.mkdir();
+        Dog.DOG_FOLDER.mkdir();
+
     }
 
     /**
@@ -39,8 +41,21 @@ public class CapersRepository {
      * to a file called `story` in the .capers directory.
      * @param text String of the text to be appended to the story
      */
+    private static File storys = new File("capers/story.txt");
     public static void writeStory(String text) {
         // TODO
+        File allStorys = join(CAPERS_FOLDER, "story");
+        String newStory;
+        if(!allStorys.exists()){
+            newStory = text;
+        } else {
+            newStory = readContentsAsString(allStorys) + "\n" + text;
+        }
+        writeContents(allStorys, newStory);
+        System.out.println(newStory);
+//        Utils.writeContents(storys, "\n");s
+//        story.add(text);
+//        story.add("\n");
     }
 
     /**
@@ -49,7 +64,10 @@ public class CapersRepository {
      * Also prints out the dog's information using toString().
      */
     public static void makeDog(String name, String breed, int age) {
-        // TODO
+        Dog newDog = new Dog(name, breed, age);
+        newDog.saveDog();
+        String DogInfo = newDog.toString();
+        System.out.println(DogInfo);
     }
 
     /**
@@ -60,5 +78,8 @@ public class CapersRepository {
      */
     public static void celebrateBirthday(String name) {
         // TODO
+        Dog dog1 = Dog.fromFile(name);
+        dog1.haveBirthday();
+        dog1.saveDog();
     }
 }
