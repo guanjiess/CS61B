@@ -1,6 +1,6 @@
 package deque;
 import java.util.Iterator;
-public class ArrayDeque <T>{
+public class ArrayDeque <T> implements Deque<T>, Iterable<T>{
     private int size ;
     private int capacity ;
     private Object [] items ;
@@ -8,20 +8,21 @@ public class ArrayDeque <T>{
     private int rear ;
 
     public  ArrayDeque(int head , int tail, int new_capacity){
-        items = new Object[new_capacity];
+        items = (T [])new Object[new_capacity];
         capacity = new_capacity;
         front = head;
         rear = tail;
         size = 0;
     }
     public ArrayDeque(){
-        items = new Object[8];
+        items = (T [])new Object[8];
         front = -1;
         rear = -1;
         size = 0;
         capacity = 8;
     }
 
+    @Override
     public void addFirst(T x){
         /*int [] temp = new int[8];
         System.arraycopy(items,0,temp,0,size);
@@ -42,6 +43,7 @@ public class ArrayDeque <T>{
         size += 1;
     }
 
+    @Override
     public void addLast (T x){
         if(size == capacity){
             resize(2*capacity);
@@ -59,14 +61,10 @@ public class ArrayDeque <T>{
         size += 1;
     }
 
-    public boolean isEmpty(){
-        return size == 0;
-    }
-
     public boolean isFull(){
         return size == capacity | (front == 0 & rear ==capacity - 1) | (front == rear + 1);
     }
-
+    @Override
     public int size(){
         return size;
     }
@@ -86,7 +84,7 @@ public class ArrayDeque <T>{
         rear = capacity - 1;
         capacity = newCapacity;
     }
-
+    @Override
     public void printDeque(){
         for (int i=0; i<size; i++){
             int index = (front + i) % capacity;
@@ -94,7 +92,7 @@ public class ArrayDeque <T>{
         }
         System.out.println();
     }
-
+    @Override
     public T removeLast(){
         /*int last = items[rear];
         items[size-1] = 0;
@@ -115,6 +113,7 @@ public class ArrayDeque <T>{
         size -= 1;
         return last;
     }
+    @Override
     public T removeFirst(){
         /*int first = items[0];
         int [] temp = new int [8];
@@ -137,7 +136,7 @@ public class ArrayDeque <T>{
         size -= 1;
         return first;
     }
-
+    @Override
     public T get(int index){
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index out of bounds");
