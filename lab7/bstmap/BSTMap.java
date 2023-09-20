@@ -21,12 +21,6 @@ public class BSTMap <K extends Comparable<K>, V> implements Map61B <K, V>{
     }
 
     public BSTMap(){}
-    public BSTMap(K key, V val){
-        root = new Node(key, val, 1);
-    }
-    public BSTMap(Node p){
-        root = p;
-    }
 
     public void clear(){
         root.left = null;
@@ -93,6 +87,7 @@ public class BSTMap <K extends Comparable<K>, V> implements Map61B <K, V>{
         return p;
     }
 
+    public void printInOrder(){}
     public Set<K> keySet(){
         return null;
     }
@@ -109,19 +104,5 @@ public class BSTMap <K extends Comparable<K>, V> implements Map61B <K, V>{
         return null;
     }
 
-    public static void main(String [] args){
-        String name = "gyy";
-        int age = 20;
-        BSTMap students = new BSTMap(name, age);
-        System.out.println(students.size());
-        students.put("gsx", 188);
-        students.put("gzz", 23);
-        students.put("zsx", 23);
-        System.out.println(students.containsKey("gyy"));
-        System.out.println(students.containsKey("gyz"));
-        System.out.println(students.containsKey("gzz"));
-        System.out.println(students.get("gyy"));
-        System.out.println(students.get("gsx"));
-    }
-
+    
 }
