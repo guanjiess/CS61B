@@ -6,6 +6,5 @@ public class IntNode {
         item = i;
         next = n;
     }
-
-
+    
 }

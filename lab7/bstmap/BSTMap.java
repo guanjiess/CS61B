@@ -87,7 +87,54 @@ public class BSTMap <K extends Comparable<K>, V> implements Map61B <K, V>{
         return p;
     }
 
-    public void printInOrder(){}
+
+    public void printInOrder(){
+        printInOrderM(root, 0);
+        System.out.println();
+    }
+
+    private void printInOrderD(Node p){
+        if(p == null){
+            return;
+        }
+        printInOrderD(p.left);
+        System.out.print(p.key);
+        System.out.print("->");
+        printInOrderD(p.right);
+    }
+
+    private void printInOrderM(Node p, int level){
+        if(p == null){
+            return;
+        }
+        printInOrderM(p.right, level+1);
+        String layers = "  ".repeat(level);
+        System.out.print(layers);
+        System.out.println(p.key);
+        printInOrderM(p.left, level+1);
+
+    }
+
+    private void printInOrderA(Node p){
+        if(p == null){
+            return;
+        }
+        printInOrderA(p.left);
+        printInOrderA(p.right);
+        System.out.print(p.key);
+        System.out.print("->");
+    }
+
+    public int height(){
+        return height(root);
+    }
+    private int height(Node p){
+        if(p == null){
+            return -1;
+        }
+        return 1 + Math.max(height(p.left), height(p.right));
+    }
+
     public Set<K> keySet(){
         return null;
     }
@@ -95,7 +142,9 @@ public class BSTMap <K extends Comparable<K>, V> implements Map61B <K, V>{
     public V remove(K key){
         return null;
     }
-
+    private Node remove(Node p, K key){
+        return p;
+    }
     public V remove(K key, V value){
         return null;
     }
@@ -104,5 +153,20 @@ public class BSTMap <K extends Comparable<K>, V> implements Map61B <K, V>{
         return null;
     }
 
-    
+    public static void main(String [] args){
+        BSTMap<String ,Integer> students = new BSTMap<>();
+        students.put("gyy", 20);
+        students.put("gxy", 21);
+        students.put("gzy", 22);
+        students.put("hyy", 20);
+        students.put("iyy", 20);
+        students.put("hzy", 20);
+        students.put("azy", 20);
+        students.put("xzy", 20);
+        students.printInOrder();
+        System.out.println(students.size());
+        System.out.println(students.height());
+    }
+
+
 }

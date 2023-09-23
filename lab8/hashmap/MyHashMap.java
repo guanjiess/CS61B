@@ -1,15 +1,14 @@
 package hashmap;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  *  A hash table-backed Map implementation. Provides amortized constant time
  *  access to elements via get(), remove(), and put() in the best case.
- *
  *  Assumes null keys will never be inserted, and does not resize down upon remove().
- *  @author YOUR NAME HERE
+ *  @author gsx
  */
-public class MyHashMap<K, V> implements Map61B<K, V> {
+public class MyHashMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
     /**
      * Protected helper class to store key/value pairs
@@ -27,12 +26,25 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     /* Instance Variables */
     private Collection<Node>[] buckets;
-    // You should probably define some more!
+    private int sizeOfBuckets;
+    private int size;
+    private double loadFactor;
+    private double currentLF;
 
     /** Constructors */
-    public MyHashMap() { }
+    public MyHashMap() {
+        sizeOfBuckets = 16;
+        size = 0;
+        loadFactor = 0.75;
+        buckets = new Collection[sizeOfBuckets];
+    }
 
-    public MyHashMap(int initialSize) { }
+    public MyHashMap(int initialSize) {
+        size = 0;
+        sizeOfBuckets = initialSize;
+        loadFactor = 0.75;
+        buckets = new Collection[sizeOfBuckets];;
+    }
 
     /**
      * MyHashMap constructor that creates a backing array of initialSize.
@@ -41,13 +53,18 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @param initialSize initial size of backing array
      * @param maxLoad maximum load factor
      */
-    public MyHashMap(int initialSize, double maxLoad) { }
+    public MyHashMap(int initialSize, double maxLoad) {
+        size = 0;
+        sizeOfBuckets = initialSize;
+        loadFactor = maxLoad;
+        buckets = new Collection[initialSize];
+    }
 
     /**
      * Returns a new node to be placed in a hash table bucket
      */
     private Node createNode(K key, V value) {
-        return null;
+        return new Node(key, value);
     }
 
     /**
@@ -69,7 +86,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * OWN BUCKET DATA STRUCTURES WITH THE NEW OPERATOR!
      */
     protected Collection<Node> createBucket() {
-        return null;
+        return new LinkedList<>();
     }
 
     /**
@@ -82,10 +99,137 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @param tableSize the size of the table to create
      */
     private Collection<Node>[] createTable(int tableSize) {
-        return null;
+        Collection<Node> [] table = new Collection[tableSize];
+        for (int i=0; i<tableSize; i++){
+            table[i] = createBucket();
+        }
+        return table;
     }
 
     // TODO: Implement the methods of the Map61B Interface below
     // Your code won't compile until you do so!
+
+    public void clear(){
+        for(int i=0; i<sizeOfBuckets; i++){
+            buckets[i] = null;
+        }
+        size = 0;
+    }
+
+    public boolean containsKey(K key){
+        int h = hash(key);
+        Node target = get(key, h);
+        return target != null;
+    }
+
+    public V get(K key){
+        if(!containsKey(key)){
+            return null;
+        }
+        int h = hash(key);
+        Node target = get(key, h);
+        if(target == null){
+            return null;
+        }
+        return target.value;
+    }
+
+    private Node get(K key, int index){
+        if(buckets[index] == null) return null;
+        for(Node object : buckets[index]){
+            if(object.key.equals(key)){
+                return object;
+            }
+        }
+        return null;
+    }
+
+    public int size(){return size;}
+
+
+    //https://github.com/exuanbo/cs61b-sp21/blob/main/lab8/hashmap/MyHashMap.java
+    public void put(K key, V value){
+        int h = hash(key);
+        Node exist = get(key, h);
+        if(buckets[h] == null){
+            buckets[h] = new LinkedList<Node>();
+        }
+        if(exist == null){
+            size ++;
+            currentLF = (double) size / sizeOfBuckets;
+            if(currentLF > loadFactor){
+                resize();
+                return;
+            }
+            Node tmp = new Node(key, value);
+            buckets[h].add(tmp);
+        }else {
+            exist.value = value;
+        }
+    }
+    private void resize(){
+        size = 0;
+        Collection<Node> [] bucketsBackup = new Collection[sizeOfBuckets];
+        System.arraycopy(buckets,0,bucketsBackup, 0, sizeOfBuckets);
+        sizeOfBuckets *= 2;
+        buckets = new Collection[sizeOfBuckets];
+        for (int i=0; i<sizeOfBuckets/2 -1; i++){
+            if(bucketsBackup[i] != null){
+                for(Node kv : bucketsBackup[i]){
+                    put(kv.key, kv.value);
+                }
+            }
+        }
+    }
+
+    private int hash(K key){
+        int h = key.hashCode() % sizeOfBuckets;
+        if(h < 0) h = sizeOfBuckets + h;
+        return h;
+    }
+
+
+    public Set<K> keySet(){
+        Set<K> keys = new HashSet<>();
+        for(int i=0; i<sizeOfBuckets; i++){
+            if(buckets[i] != null){
+                for(Node kv : buckets[i]){
+                    keys.add(kv.key);
+                }
+            }
+        }
+        return keys;
+    }
+
+    public V remove(K key){return null;}
+
+    public V remove(K key, V value){return null;}
+
+    public Iterator<K> iterator(){
+        return null;
+    }
+
+    public static void main(String [] args){
+        MyHashMap<String, Integer> students = new MyHashMap<>();
+        students.put("gyy", 20);
+        students.put("gyy", 22);
+        students.put("gsx", 23);
+        students.put("xsx", 23);
+        students.put("xsz", 43);
+        students.put("sdadsx", 33);
+        for(int i=0; i<13; i++){
+            students.put("dsad"+i, i*i);
+        }
+        System.out.println(students.containsKey("gyy"));
+        System.out.println(students.containsKey("gsx"));
+        System.out.println(students.containsKey("gysda"));
+        System.out.println(students.get("gyy"));
+        System.out.println(students.get("gsx"));
+        System.out.println(students.get("xsx"));
+        System.out.println(students.get("sdadsx"));
+        System.out.println(students.size());
+
+
+    }
 
 }
