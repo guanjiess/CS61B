@@ -2,15 +2,18 @@ package gitlet;
 
 // TODO: any imports you need here
 
+import java.io.File;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.HashMap;
+
+import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
- *
- *  @author TODO
+ *  @author Gsx
  */
-public class Commit {
+public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
      *
@@ -20,7 +23,91 @@ public class Commit {
      */
 
     /** The message of this Commit. */
+    private final String ID = "commit";
     private String message;
 
-    /* TODO: fill in the rest of this class. */
+    /** time stamp of each commit*/
+    private String timestamp;
+    /** the parent reference of a commit, parent2 is used for merges
+     *  content of parent is hash of the parent commit
+     * */
+    private String parent;
+    private String parent2;
+    /** tree is used to store mapping between filename and their SHA-1
+     *  */
+    private HashMap<String, String> tree;
+
+    public Commit(){}
+    public Commit(String message, String parent){
+        this.message = message;
+        this.parent = parent;
+        if(this.parent == null){
+            this.timestamp = "01/01/1970 00:00:00";
+        } else {
+            this.timestamp = getTime();
+        }
+    }
+    public String getMessage(){
+        return this.message;
+    }
+
+    public String getTimestamp(){
+        return this.timestamp;
+    }
+
+    /** save the commit object to ./gitlet/objects folder according to the object's hash
+    // each hash is calculated using it's metadata and reference, plus a symbol "commit "
+     */
+    public String saveCommit(){
+        String hash;
+        String content;
+        if(this.message == "initial commit"){
+            content = this.message + this.timestamp;
+        } else {
+            content = this.message + this.timestamp + this.parent + this.tree;
+        }
+        hash = sha1(content);
+        String subDirectory = hash.substring(0,2);
+        String name = hash.substring(2);
+
+        File COMMIT_FOLDER = join(Repository.GITLET_DIR, "objects", subDirectory);
+        if(!COMMIT_FOLDER.exists()){
+            COMMIT_FOLDER.mkdir();
+        }
+        File newCommit = join(COMMIT_FOLDER, name);
+        writeObject(newCommit, this);
+        return hash;
+    }
+
+    public static Commit loadCommit(String hash){
+        String dir = hash.substring(0,2);
+        String name = hash.substring(2);
+        File target = join(Repository.GITLET_DIR, "objects", dir, name);
+        return readObject(target, Commit.class);
+    }
+
+    public String getTime(){
+        Date currentDate = new Date();
+        String format = "dd/MM/yyyy HH:mm:ss";
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.format(currentDate);
+    }
+
+    public String getHash(){
+        if(this.message == "initial commit"){
+            return sha1("commit ", this.message, this.timestamp);
+        }
+        return sha1("commit ", this.message, this.timestamp, this.parent, this.tree);
+    }
+
+    public static void main(String[] args){
+
+        Commit commit1 = new Commit("initial commit", null);
+        String hash2 = commit1.saveCommit();
+        System.out.println(hash2);
+        Commit commitRead = loadCommit("f541e5042a94d607117d780fcf91bd5599c92f5b");
+        System.out.println(commitRead.message+": this is loaded from disk");
+        System.out.println("The type of object is: " + commitRead.ID);
+    }
+
 }

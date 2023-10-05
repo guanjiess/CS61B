@@ -1,5 +1,8 @@
 package gitlet;
 
+import static gitlet.CommandChecker.*;
+import static gitlet.Repository.*;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author TODO
  */
@@ -10,15 +13,46 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO: what if args is empty?
+        if(!commandExists(args)){
+            return;
+        }
         String firstArg = args[0];
+        Repository newRepo = new Repository();
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                if(!validateNumArgs("init", args, 1)) return;
+                newRepo.init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                if(!validateNumArgs("add", args, 2)) return;
+                String name = args[1];
+                newRepo.add(name);
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                if(!commitValid(args)) return;
+                String message = args[1];
+                newRepo.commit(message);
+                break;
+            case "rm":
+
+            case "log":
+
+            case "global-log":
+
+            case "find":
+
+            case "status":
+
+            case "checkout":
+
+            case "branch":
+
+            case "rm-branch":
+
+            case "reset":
+
+            case "merge":
+
         }
     }
 }
