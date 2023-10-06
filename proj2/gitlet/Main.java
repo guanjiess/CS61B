@@ -24,11 +24,13 @@ public class Main {
                 newRepo.init();
                 break;
             case "add":
+                if(!folderCheck()) return;
                 if(!validateNumArgs("add", args, 2)) return;
                 String name = args[1];
                 newRepo.add(name);
                 break;
             case "commit":
+                if(!folderCheck()) return;
                 if(!commitValid(args)) return;
                 String message = args[1];
                 newRepo.commit(message);

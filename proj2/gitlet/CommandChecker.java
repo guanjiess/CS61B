@@ -55,14 +55,23 @@ public class CommandChecker {
             return false;
         }
         File index = join(Repository.GITLET_DIR, "index");
-        String stagingArea = readContentsAsString(index);
         try {
-            if(stagingArea.length() == 0){
+            if(!index.exists()){
                 throw new GitletException("No changes added to the commit.");
             }
         }
         catch (GitletException exception){
             System.out.println("No changes added to the commit.");
+            return false;
+        }
+        return true;
+    }
+    public static boolean folderCheck(){
+        try {
+            if(!Repository.GITLET_DIR.exists()) throw new GitletException("Not in an initialized Gitlet directory.");
+        }
+        catch (GitletException exp){
+            System.out.println("Not in an initialized Gitlet directory.");
             return false;
         }
         return true;

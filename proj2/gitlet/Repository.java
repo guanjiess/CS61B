@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,10 +51,11 @@ public class Repository {
         refs.mkdir();
         objects.mkdir();
         logs.mkdir();
-        writeContents(HEAD, "ref: refs/heads/master");
-        Commit initial = new Commit("initial commit", null);
-        initial.saveCommit();
-
+        Commit initial = new Commit();
+        String hash = initial.saveCommit();
+        writeContents(HEAD, "refs/master");
+        File master = join(refs, "master");
+        writeContents(master, hash);
     }
 
     public void add(String name){
@@ -69,41 +71,88 @@ public class Repository {
             System.out.println("File does not exist.");
             return;
         }
-        // take the file content and hashes it
+        //get current staging area
+        File index = join(GITLET_DIR, "index");
+        if(!index.exists()){
+            StagingArea stage = new StagingArea();
+            stage.saveStage();
+        }
+        StagingArea stage = readObject(index, StagingArea.class);
+        HashMap<String, String> stageAdd = stage.getStageAdd();
+
+        /**take the file content and hashes it, then put it into staging area.*/
         String fileContent = readContentsAsString(newFile);
         String fileHash = sha1(fileContent);
-        // create and save the new blob object
+
+        /** compare current working version with version of current commit, if
+         * the same, do not add, remove if it is already there. TO BE DONE.*/
+        Commit currentCommit = Commit.getCurrentConmmit();
+        HashMap<String, String> tree = currentCommit.getTree();
+
+        //files that already exists in last commit
+        for (String key : tree.keySet()){
+            String keyHash = tree.get(key);
+            boolean exists = checkAlreadyExists(stageAdd, keyHash, key);
+            if(exists){
+                stageAdd.remove(key);
+            }
+            if(fileHash.equals( keyHash)){
+                break;
+            } else {
+                stageAdd.put(name, fileHash);
+            }
+        }
+        // files not in last commit
+        if(!tree.containsKey(name)){
+            stageAdd.put(name, fileHash);
+        }
         Blob blob = new Blob(fileHash, fileContent, name);
         blob.saveBlob();
-
-        String BlobInfo = blob.getID() + " " + blob.getfileHash() + " " +blob.getName();
-        writeIndex(BlobInfo);
     }
-    private void writeIndex(String blobInfo){
-        // save all the required blob information in index.
-        // include identifier, SHA-1 code, file name
-        // may be
-        File index = join(GITLET_DIR, "index");
-        String newIndex;
-        if(!index.exists()){
-            newIndex = blobInfo;
-        } else {
-            newIndex = readContentsAsString(index) + "\n" + blobInfo;
+    private boolean checkAlreadyExists(HashMap<String, String> stageAdd, String hash, String name){
+        for (String key : stageAdd.keySet()){
+            if(key.equals(name) & stageAdd.get(key).equals(hash))
+                return true;
         }
-        writeContents(index, newIndex);
-        System.out.println(newIndex);
+        return false;
     }
 
-    public void commit(String message){
-        // read from computer the head commit object and the staging area
-        // clone the head commit
-        // modify its message and timestamp according to user input
-        // use the staging area in order to modify the files tracked by the new commit
-
-        // write back any new object made or any modified objects read earlier.
-        // what is serialize in java? how to save them in files?
+    public String commit(String message){
         // how to construct a commit tree?
-        Commit newCommit = new Commit(message, null);
+        // load parent (head)commit
+        Commit parentCommit = Commit.getCurrentConmmit();
+        String parent = parentCommit.getHash();
 
+        //read staging area data
+        // use the staging area in order to modify the files tracked by the new commit
+        File index = join(GITLET_DIR, "index");
+        StagingArea stage = readObject(index, StagingArea.class);
+        HashMap<String, String> stageAdd = stage.getStageAdd();
+        //read parentCommit tree
+        HashMap<String , String > parentTree = parentCommit.getTree();
+        String parentCommitMessage = parentCommit.getMessage();
+        // update parentTree, write back any new object made or any modified objects read earlier.
+        if(parentCommitMessage.equals("initial commit")){
+            parentTree = stageAdd;
+        }
+        for(String key : stageAdd.keySet()){
+            parentTree.put(key, stageAdd.get(key));
+        }
+        Commit newCommit = new Commit(message, parent, parentTree);
+        String currentCommitHash = newCommit.saveCommit();
+        /** clear staging area and save it.*/
+        stageAdd.clear();
+        stage.setStageAdd(stageAdd);
+        stage.saveStage();
+        /** modefy current commit*/
+        Commit.setCurrentConmmit(currentCommitHash);
+        System.out.println("Current commit is: " + currentCommitHash);
+        return currentCommitHash;
+    }
+
+    public static void main(String[] args){
+        Repository repo1 = new Repository();
+        repo1.add("test3.txt");
+        repo1.commit("ttt");
     }
 }

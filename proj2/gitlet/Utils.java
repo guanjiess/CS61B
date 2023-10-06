@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -235,5 +236,18 @@ class Utils {
     static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
+    }
+
+    static HashMap<String, String> indexDecoder(String tree){
+        HashMap<String, String> newTree = new HashMap<>();
+        String[] files = tree.split("\n");
+        String file, hash, name;
+        for(int i = 0; i < files.length; i++){
+            file = files[i];
+            hash = file.substring(5, 45);
+            name = file.substring(46);
+            newTree.put(hash, name);
+        }
+        return newTree;
     }
 }

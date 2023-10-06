@@ -37,16 +37,20 @@ public class Commit implements Serializable {
      *  */
     private HashMap<String, String> tree;
 
-    public Commit(){}
-    public Commit(String message, String parent){
-        this.message = message;
-        this.parent = parent;
-        if(this.parent == null){
-            this.timestamp = "01/01/1970 00:00:00";
-        } else {
-            this.timestamp = getTime();
-        }
+    public Commit(){
+        this.message = "initial commit";
+        this.parent = null;
+        this.timestamp = "01/01/1970 00:00:00";
+        this.tree = new HashMap<>();
     }
+
+    public Commit(String message, String parent, HashMap<String, String> tree){}{
+        this.parent = parent;
+        this.message = message;
+        this.timestamp = getTime();
+        this.tree = tree;
+    }
+
     public String getMessage(){
         return this.message;
     }
@@ -94,15 +98,34 @@ public class Commit implements Serializable {
     }
 
     public String getHash(){
-        if(this.message == "initial commit"){
+        if(this.message .equals("initial commit") ){
             return sha1("commit ", this.message, this.timestamp);
         }
         return sha1("commit ", this.message, this.timestamp, this.parent, this.tree);
     }
 
+    public HashMap<String , String> getTree(){
+        return this.tree;
+    }
+
+    public static Commit getCurrentConmmit(){
+        String hash;
+        File HEAD = join(Repository.GITLET_DIR, "HEAD");
+        String branch = readContentsAsString(HEAD);
+        File latestCommit = join(Repository.GITLET_DIR, branch);
+        hash = readContentsAsString(latestCommit);
+        return loadCommit(hash);
+    }
+    public static void setCurrentConmmit(String hash){
+        File HEAD = join(Repository.GITLET_DIR, "HEAD");
+        String branch = readContentsAsString(HEAD);
+        File latestCommit = join(Repository.GITLET_DIR, branch);
+        writeContents(latestCommit, hash);
+    }
+
     public static void main(String[] args){
 
-        Commit commit1 = new Commit("initial commit", null);
+        Commit commit1 = new Commit();
         String hash2 = commit1.saveCommit();
         System.out.println(hash2);
         Commit commitRead = loadCommit("f541e5042a94d607117d780fcf91bd5599c92f5b");
