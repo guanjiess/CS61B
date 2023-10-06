@@ -155,32 +155,39 @@ public class MyHashMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             buckets[h] = new LinkedList<Node>();
         }
         if(exist == null){
-            size ++;
             currentLF = (double) size / sizeOfBuckets;
-            if(currentLF > loadFactor){
-                resize();
-                return;
+            if(currentLF >= loadFactor){
+                size = 0;
+                buckets = resize(buckets, sizeOfBuckets, 2);
+                sizeOfBuckets = 2 * sizeOfBuckets;
             }
+            size ++;
             Node tmp = new Node(key, value);
             buckets[h].add(tmp);
         }else {
             exist.value = value;
         }
     }
-    private void resize(){
-        size = 0;
-        Collection<Node> [] bucketsBackup = new Collection[sizeOfBuckets];
-        System.arraycopy(buckets,0,bucketsBackup, 0, sizeOfBuckets);
-        sizeOfBuckets *= 2;
-        buckets = new Collection[sizeOfBuckets];
-        for (int i=0; i<sizeOfBuckets/2 -1; i++){
+    private Collection<Node> [] resize(Collection[] buckets, int size, int times){
+        Collection<Node> [] bucketsBackup = new Collection[size];
+        System.arraycopy(buckets,0,bucketsBackup, 0, size);
+        Collection<Node> [] newBuckets = createTable(times * size);
+        for (int i=0; i<size; i++){
             if(bucketsBackup[i] != null){
                 for(Node kv : bucketsBackup[i]){
-                    put(kv.key, kv.value);
+                    put(kv, newBuckets);
+                    this.size ++;
                 }
             }
         }
+        return newBuckets;
     }
+
+    private void put(Node kv, Collection<Node>[] buckets){
+        int h = hash(kv.key);
+        buckets[h].add(kv);
+    }
+
 
     private int hash(K key){
         int h = key.hashCode() % sizeOfBuckets;
@@ -201,7 +208,16 @@ public class MyHashMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return keys;
     }
 
-    public V remove(K key){return null;}
+    public V remove(K key){
+        int h = hash(key);
+        Node target = get(key, h);
+        buckets[h].remove(target);
+        if(target == null || !target.key.equals(key)){
+            return null;
+        }
+        size -= 1;
+        return target.value;
+    }
 
     public V remove(K key, V value){return null;}
 
@@ -217,7 +233,7 @@ public class MyHashMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         students.put("xsx", 23);
         students.put("xsz", 43);
         students.put("sdadsx", 33);
-        for(int i=0; i<13; i++){
+        for(int i=0; i<1323; i++){
             students.put("dsad"+i, i*i);
         }
         System.out.println(students.containsKey("gyy"));

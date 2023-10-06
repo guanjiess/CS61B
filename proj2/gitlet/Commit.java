@@ -35,7 +35,7 @@ public class Commit implements Serializable {
     private String parent2;
     /** tree is used to store mapping between filename and their SHA-1
      *  */
-    private HashMap<String, String> tree;
+    private HashMap<String, String> tree = new HashMap<>();
 
     public Commit(){
         this.message = "initial commit";
@@ -44,11 +44,11 @@ public class Commit implements Serializable {
         this.tree = new HashMap<>();
     }
 
-    public Commit(String message, String parent, HashMap<String, String> tree){}{
-        this.parent = parent;
-        this.message = message;
+    public Commit(String newMessage, String parentHash, HashMap<String, String> newTree){
+        this.parent = parentHash;
+        this.message = newMessage;
         this.timestamp = getTime();
-        this.tree = tree;
+        this.tree = newTree;
     }
 
     public String getMessage(){

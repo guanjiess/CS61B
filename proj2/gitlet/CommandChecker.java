@@ -1,5 +1,6 @@
 package gitlet;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.io.File;
@@ -72,6 +73,22 @@ public class CommandChecker {
         }
         catch (GitletException exp){
             System.out.println("Not in an initialized Gitlet directory.");
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean rmFileCheck(HashMap<String ,String > stageAdd, HashMap<String ,String > tree, String name){
+        try {
+            boolean containsFile = stageAdd.containsKey(name)||tree.containsKey(name);
+            if(!containsFile){
+                throw new GitletException("No reason to remove the file");
+            }
+        }
+        catch (GitletException exception){
+            System.out.println("stageAdd.containsKey(name): " + " " + name + " " + stageAdd.containsKey(name));
+            System.out.println("tree.containsKey(name)" +" " + name + " " + tree.containsKey(name) );
+            System.out.println("No reason to remove the file.");
             return false;
         }
         return true;

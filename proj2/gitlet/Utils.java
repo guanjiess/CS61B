@@ -250,4 +250,8 @@ class Utils {
         }
         return newTree;
     }
+
+    static boolean checkFileExists(){
+        return false;
+    }
 }

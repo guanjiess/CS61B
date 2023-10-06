@@ -36,7 +36,11 @@ public class Main {
                 newRepo.commit(message);
                 break;
             case "rm":
-
+                if(!folderCheck()) return;
+                if(!validateNumArgs("rm", args, 2)) return;
+                String delete = args[1];
+                newRepo.rm(delete);
+                break;
             case "log":
 
             case "global-log":

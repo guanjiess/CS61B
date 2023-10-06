@@ -45,6 +45,13 @@ public class Blob implements Serializable{
         return readObject(target, Blob.class);
     }
 
+    public static boolean deleteBlob(String fileHash){
+        String dir = fileHash.substring(0,2);
+        String hashName = fileHash.substring(2);
+        File target = join(Repository.GITLET_DIR, "objects", dir, hashName);
+        return target.delete();
+    }
+
     public static void main(String[] args){
         File newFile = join(Repository.CWD, "test.txt");
         String fileContent = readContentsAsString(newFile);

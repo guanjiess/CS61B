@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static gitlet.Utils.*;
+import static gitlet.CommandChecker.*;
 
 // TODO: any imports you need here
 
@@ -106,6 +107,8 @@ public class Repository {
         if(!tree.containsKey(name)){
             stageAdd.put(name, fileHash);
         }
+        stage.setStageAdd(stageAdd);
+        stage.saveStage();
         Blob blob = new Blob(fileHash, fileContent, name);
         blob.saveBlob();
     }
@@ -117,42 +120,89 @@ public class Repository {
         return false;
     }
 
-    public String commit(String message){
+    public String commit(String newMessage){
         // how to construct a commit tree?
         // load parent (head)commit
         Commit parentCommit = Commit.getCurrentConmmit();
-        String parent = parentCommit.getHash();
+        String parentCommitHash = parentCommit.getHash();
 
-        //read staging area data
-        // use the staging area in order to modify the files tracked by the new commit
+        /**read staging area data, use the staging area in order to modify the
+         * files tracked by the new commit*/
         File index = join(GITLET_DIR, "index");
         StagingArea stage = readObject(index, StagingArea.class);
         HashMap<String, String> stageAdd = stage.getStageAdd();
-        //read parentCommit tree
+        HashMap<String, String> stageRemove = stage.getStageRemove();
+        /**read parentCommit tree*/
         HashMap<String , String > parentTree = parentCommit.getTree();
         String parentCommitMessage = parentCommit.getMessage();
         // update parentTree, write back any new object made or any modified objects read earlier.
         if(parentCommitMessage.equals("initial commit")){
             parentTree = stageAdd;
         }
+        /** put files in staging area*/
         for(String key : stageAdd.keySet()){
             parentTree.put(key, stageAdd.get(key));
         }
-        Commit newCommit = new Commit(message, parent, parentTree);
+        /** remove files in staging area*/
+        for(String key : stageRemove.keySet()){
+            parentTree.remove(key);
+        }
+        Commit newCommit = new Commit(newMessage, parentCommitHash, parentTree);
         String currentCommitHash = newCommit.saveCommit();
         /** clear staging area and save it.*/
         stageAdd.clear();
+        stageRemove.clear();
         stage.setStageAdd(stageAdd);
+        stage.setStageRemove(stageRemove);
         stage.saveStage();
         /** modefy current commit*/
         Commit.setCurrentConmmit(currentCommitHash);
         System.out.println("Current commit is: " + currentCommitHash);
+        System.out.println(newCommit.getHash());
+        System.out.println(newCommit.getMessage());
         return currentCommitHash;
+    }
+
+    public void rm(String name){
+        /** read staging area and current commit*/
+        File index = join(GITLET_DIR, "index");
+        File file = join(CWD, name);
+        StagingArea stage = readObject(index, StagingArea.class);
+        HashMap<String, String> stageAdd = stage.getStageAdd();
+        Commit currentCommit = Commit.getCurrentConmmit();
+        HashMap<String, String> tree = currentCommit.getTree();
+        /** check if file exists*/
+        rmFileCheck(stageAdd, tree, name);
+        boolean stageAddContains = stageAdd.containsKey(name);
+        boolean treeContains = tree.containsKey(name);
+        String fileHash = stageAdd.get(name);
+        /**added to stage but not committed, just remove the blob*/
+        if(stageAddContains && !treeContains ){
+            Blob.deleteBlob(fileHash);
+            stageAdd.remove(name);
+            System.out.println(stageAdd);
+        }
+        /**if file was comitted before, remove file and move it to staging area */
+        HashMap<String, String> stageRemove = stage.getStageRemove();
+        if(treeContains){
+            stageRemove.put(name, fileHash);
+            stage.setStageRemove(stageRemove);
+            stage.setStageRemove(stageAdd);
+            System.out.println(stageRemove);
+            if(file.exists()){
+                file.delete();
+            }
+        }
+        stage.saveStage();
     }
 
     public static void main(String[] args){
         Repository repo1 = new Repository();
+        repo1.init();
+        repo1.add("ttt.txt");
+        repo1.add("test2.txt");
         repo1.add("test3.txt");
-        repo1.commit("ttt");
+        repo1.commit("saved");
+        repo1.rm("test2.txt");
     }
 }
