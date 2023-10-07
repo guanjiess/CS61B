@@ -93,4 +93,16 @@ public class CommandChecker {
         }
         return true;
     }
+
+    public static void findChecker(boolean exist){
+        try {
+            if(!exist){
+                throw new GitletException("Found no commit with that message.");
+            }
+        }
+        catch (GitletException exception){
+            System.out.println("Found no commit with that message.");
+            return;
+        }
+    }
 }

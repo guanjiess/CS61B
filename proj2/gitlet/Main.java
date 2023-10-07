@@ -44,13 +44,20 @@ public class Main {
             case "log":
                 if(!folderCheck()) return;
                 newRepo.log();
+                break;
             case "global-log":
                 if(!folderCheck()) return;
-
+                newRepo.globallog();
+                break;
             case "find":
-
+                if(!folderCheck()) return;
+                if(!validateNumArgs("find", args, 2)) return;
+                String requiredMessage = args[1];
+                newRepo.find(requiredMessage);
+                break;
             case "status":
-
+                if(!folderCheck()) return;
+                newRepo.status();
             case "checkout":
 
             case "branch":

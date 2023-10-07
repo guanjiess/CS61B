@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static gitlet.Utils.*;
@@ -48,12 +49,14 @@ public class Repository {
         File logs = join(GITLET_DIR, "logs");
         File HEAD = join(GITLET_DIR, "HEAD");
         File index = join(GITLET_DIR, "index");
+        File commits = join(GITLET_DIR, "commits");
         GITLET_DIR.mkdir();
         refs.mkdir();
         objects.mkdir();
         logs.mkdir();
         Commit initial = new Commit();
         String hash = initial.saveCommit();
+        writeContents(commits, hash);
         writeContents(HEAD, "refs/master");
         File master = join(refs, "master");
         writeContents(master, hash);
@@ -130,6 +133,7 @@ public class Repository {
         /**read staging area data, use the staging area in order to modify the
          * files tracked by the new commit*/
         File index = join(GITLET_DIR, "index");
+
         StagingArea stage = readObject(index, StagingArea.class);
         HashMap<String, String> stageAdd = stage.getStageAdd();
         HashMap<String, String> stageRemove = stage.getStageRemove();
@@ -159,7 +163,15 @@ public class Repository {
         stage.saveStage();
         /** modefy current commit*/
         Commit.setCurrentConmmit(newCommitHash);
+        writeCommits(newCommitHash);
         return newCommitHash;
+    }
+
+    private void writeCommits(String hash){
+        File commits = join(GITLET_DIR, "commits");
+        String contents = readContentsAsString(commits);
+        contents = contents + "\n" + hash;
+        writeContents(commits, contents);
     }
 
     public void rm(String name){
@@ -224,10 +236,77 @@ public class Repository {
     }
 
     public void globallog(){
+        File objects = join(GITLET_DIR, "commits");
+        String allCommits = readContentsAsString(objects);
+        String[] files = allCommits.split("\n");
+        Commit current;
+        for (String fileHash : files){
+            current = Commit.loadCommit(fileHash);
+            System.out.println("===");
+            System.out.println("commit"+" "+current.getCommitName());
+            System.out.println(current.getTimestamp());
+            System.out.println(current.getMessage());
+            System.out.println();
+        }
+    }
 
+    public void find(String message){
+        File objects = join(GITLET_DIR, "commits");
+        String allCommits = readContentsAsString(objects);
+        String[] files = allCommits.split("\n");
+        boolean equals = true;
+        boolean exists = false;
+        for (String fileHash : files){
+            Commit current = Commit.loadCommit(fileHash);
+            equals = current.getMessage().equals(message);
+            if(equals){
+                exists = true;
+                String hash = current.getCommitName();
+                System.out.println(hash);
+            }
+        }
+        findChecker(exists);
+    }
+
+    public void status(){
+        /**Branches*/
+        File HEAD = join(GITLET_DIR, "HEAD");
+        File refs = join(GITLET_DIR, "refs");
+        File [] listOfFiles = refs.listFiles();
+        String contents = readContentsAsString(HEAD);
+        String [] headcontents = contents.split("/");
+        String currentBranch = headcontents[1];
+        System.out.println("=== Branches ===");
+        System.out.println("*"+currentBranch);
+        if(listOfFiles.length>1){
+            for (int i = 1; i < listOfFiles.length; i ++){
+                System.out.println(listOfFiles[i].getName());
+            }
+        }
+        System.out.println();
+        /**Staged files*/
+        
+        /**Removed files*/
+
+        /**Extra credit, not interested*/
     }
 
     public static void main(String[] args){
+        Repository repo1 = new Repository();
+//        GITLET_DIR.delete();
+//        repo1.init();
+//        repo1.add("ttt.txt");
+//        repo1.commit("save ttt.txt");
+//        repo1.add("test.txt");
+//        repo1.commit("2322");
+//        repo1.add("test2.txt");
+//        repo1.commit("2322");
+//        repo1.add("test1.txt");
+//        repo1.commit("2322");
+//        repo1.rm("test2.txt");
+//        repo1.commit("delete test2.txt");
+        repo1.status();
+
 
     }
 }
