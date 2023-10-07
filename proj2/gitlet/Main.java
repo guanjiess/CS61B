@@ -42,8 +42,10 @@ public class Main {
                 newRepo.rm(delete);
                 break;
             case "log":
-
+                if(!folderCheck()) return;
+                newRepo.log();
             case "global-log":
+                if(!folderCheck()) return;
 
             case "find":
 

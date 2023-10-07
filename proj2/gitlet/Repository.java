@@ -111,6 +111,7 @@ public class Repository {
         stage.saveStage();
         Blob blob = new Blob(fileHash, fileContent, name);
         blob.saveBlob();
+        System.out.println("add, "+"stageAdd is: " + stageAdd);
     }
     private boolean checkAlreadyExists(HashMap<String, String> stageAdd, String hash, String name){
         for (String key : stageAdd.keySet()){
@@ -124,7 +125,7 @@ public class Repository {
         // how to construct a commit tree?
         // load parent (head)commit
         Commit parentCommit = Commit.getCurrentConmmit();
-        String parentCommitHash = parentCommit.getHash();
+        String parentCommitHash = parentCommit.getCommitName();
 
         /**read staging area data, use the staging area in order to modify the
          * files tracked by the new commit*/
@@ -148,7 +149,8 @@ public class Repository {
             parentTree.remove(key);
         }
         Commit newCommit = new Commit(newMessage, parentCommitHash, parentTree);
-        String currentCommitHash = newCommit.saveCommit();
+        String newCommitHash = newCommit.getCommitName();
+        newCommit.saveCommit();
         /** clear staging area and save it.*/
         stageAdd.clear();
         stageRemove.clear();
@@ -156,11 +158,8 @@ public class Repository {
         stage.setStageRemove(stageRemove);
         stage.saveStage();
         /** modefy current commit*/
-        Commit.setCurrentConmmit(currentCommitHash);
-        System.out.println("Current commit is: " + currentCommitHash);
-        System.out.println(newCommit.getHash());
-        System.out.println(newCommit.getMessage());
-        return currentCommitHash;
+        Commit.setCurrentConmmit(newCommitHash);
+        return newCommitHash;
     }
 
     public void rm(String name){
@@ -169,10 +168,16 @@ public class Repository {
         File file = join(CWD, name);
         StagingArea stage = readObject(index, StagingArea.class);
         HashMap<String, String> stageAdd = stage.getStageAdd();
+        HashMap<String, String> stageRemove = stage.getStageRemove();
         Commit currentCommit = Commit.getCurrentConmmit();
         HashMap<String, String> tree = currentCommit.getTree();
         /** check if file exists*/
-        rmFileCheck(stageAdd, tree, name);
+        boolean fileExist = rmFileCheck(stageAdd, tree, name);
+        if(!fileExist){
+            System.out.println("rm," + "stageAdd is: " + stageAdd);
+            System.out.println("rm," + "stageRemove is: " + stageRemove);
+            return;
+        }
         boolean stageAddContains = stageAdd.containsKey(name);
         boolean treeContains = tree.containsKey(name);
         String fileHash = stageAdd.get(name);
@@ -180,29 +185,49 @@ public class Repository {
         if(stageAddContains && !treeContains ){
             Blob.deleteBlob(fileHash);
             stageAdd.remove(name);
-            System.out.println(stageAdd);
         }
         /**if file was comitted before, remove file and move it to staging area */
-        HashMap<String, String> stageRemove = stage.getStageRemove();
         if(treeContains){
-            stageRemove.put(name, fileHash);
-            stage.setStageRemove(stageRemove);
-            stage.setStageRemove(stageAdd);
-            System.out.println(stageRemove);
+            String fileHashinTree = tree.get(name);
+            stageRemove.put(name, fileHashinTree);
             if(file.exists()){
                 file.delete();
             }
         }
+        stage.setStageRemove(stageRemove);
+        stage.setStageAdd(stageAdd);
         stage.saveStage();
+        System.out.println("rm," + "stageAdd is: " + stageAdd);
+        System.out.println("rm," + "stageRemove is: " + stageRemove);
+    }
+
+    public void log(){
+        Commit currentCommit = Commit.getCurrentConmmit();
+        String message = currentCommit.getMessage();
+        String currentCommitHash = currentCommit.getCommitName();
+        while (!message.equals("initial commit")){
+            /**TODO merge situation not implemented*/
+            System.out.println("===");
+            System.out.println("commit"+" "+currentCommitHash);
+            System.out.println(currentCommit.getTimestamp());
+            System.out.println(message);
+            System.out.println();
+            currentCommitHash = currentCommit.getParent();
+            currentCommit = Commit.loadCommit(currentCommitHash);
+            message = currentCommit.getMessage();
+        }
+        /** out of while loop is initial commit*/
+        System.out.println("===");
+        System.out.println("commit"+" "+currentCommitHash);
+        System.out.println(currentCommit.getTimestamp());
+        System.out.println(message);
+    }
+
+    public void globallog(){
+
     }
 
     public static void main(String[] args){
-        Repository repo1 = new Repository();
-        repo1.init();
-        repo1.add("ttt.txt");
-        repo1.add("test2.txt");
-        repo1.add("test3.txt");
-        repo1.commit("saved");
-        repo1.rm("test2.txt");
+
     }
 }

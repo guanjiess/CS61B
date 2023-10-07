@@ -33,15 +33,16 @@ public class Commit implements Serializable {
      * */
     private String parent;
     private String parent2;
+    private String CommitName;
     /** tree is used to store mapping between filename and their SHA-1
      *  */
     private HashMap<String, String> tree = new HashMap<>();
 
     public Commit(){
         this.message = "initial commit";
-        this.parent = null;
         this.timestamp = "01/01/1970 00:00:00";
         this.tree = new HashMap<>();
+        this.CommitName = getHash();
     }
 
     public Commit(String newMessage, String parentHash, HashMap<String, String> newTree){
@@ -49,6 +50,7 @@ public class Commit implements Serializable {
         this.message = newMessage;
         this.timestamp = getTime();
         this.tree = newTree;
+        this.CommitName = getHash();
     }
 
     public String getMessage(){
@@ -58,6 +60,7 @@ public class Commit implements Serializable {
     public String getTimestamp(){
         return this.timestamp;
     }
+    public String getParent(){ return this.parent;}
 
     /** save the commit object to ./gitlet/objects folder according to the object's hash
     // each hash is calculated using it's metadata and reference, plus a symbol "commit "
@@ -70,7 +73,7 @@ public class Commit implements Serializable {
         } else {
             content = this.message + this.timestamp + this.parent + this.tree;
         }
-        hash = sha1(content);
+        hash = this.getCommitName();
         String subDirectory = hash.substring(0,2);
         String name = hash.substring(2);
 
@@ -90,7 +93,7 @@ public class Commit implements Serializable {
         return readObject(target, Commit.class);
     }
 
-    public String getTime(){
+    private String getTime(){
         Date currentDate = new Date();
         String format = "dd/MM/yyyy HH:mm:ss";
         SimpleDateFormat sdf = new SimpleDateFormat(format);
@@ -101,7 +104,13 @@ public class Commit implements Serializable {
         if(this.message .equals("initial commit") ){
             return sha1("commit ", this.message, this.timestamp);
         }
-        return sha1("commit ", this.message, this.timestamp, this.parent, this.tree);
+        String content = this.message + this.timestamp + this.parent + this.tree;
+        return sha1(content);
+//        return sha1("commit ", this.message, this.timestamp, this.parent, this.tree);
+    }
+
+    public String getCommitName(){
+        return this.CommitName;
     }
 
     public HashMap<String , String> getTree(){
@@ -124,13 +133,6 @@ public class Commit implements Serializable {
     }
 
     public static void main(String[] args){
-
-        Commit commit1 = new Commit();
-        String hash2 = commit1.saveCommit();
-        System.out.println(hash2);
-        Commit commitRead = loadCommit("f541e5042a94d607117d780fcf91bd5599c92f5b");
-        System.out.println(commitRead.message+": this is loaded from disk");
-        System.out.println("The type of object is: " + commitRead.ID);
     }
 
 }
