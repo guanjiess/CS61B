@@ -14,10 +14,7 @@ import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 /** Assorted utilities.
@@ -254,4 +251,13 @@ class Utils {
     static boolean checkFileExists(){
         return false;
     }
+
+    public static void printList(List<String> data){
+        Collections.sort(data);
+        for (String name : data){
+            System.out.println(name);
+        }
+        System.out.println();
+    }
+
 }

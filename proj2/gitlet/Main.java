@@ -58,12 +58,21 @@ public class Main {
             case "status":
                 if(!folderCheck()) return;
                 newRepo.status();
+                break;
             case "checkout":
 
             case "branch":
-
+                if(!folderCheck()) return;
+                if(!validateNumArgs("branch", args, 2)) return;
+                String branch = args[1];
+                newRepo.branch(branch);
+                break;
             case "rm-branch":
-
+                if(!folderCheck()) return;
+                if(!validateNumArgs("rm-branch", args, 2)) return;
+                String thisIsBad = args[1];
+                newRepo.deleteBranch(thisIsBad);
+                break;
             case "reset":
 
             case "merge":

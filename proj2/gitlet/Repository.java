@@ -1,10 +1,9 @@
 package gitlet;
 
+import org.w3c.dom.css.CSSStyleRule;
+
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static gitlet.Utils.*;
 import static gitlet.CommandChecker.*;
@@ -29,6 +28,12 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
+    public static final File refs = join(GITLET_DIR, "refs");
+    public static final File objects = join(GITLET_DIR, "objects");
+    public static final File logs = join(GITLET_DIR, "logs");
+    public static final File HEAD = join(GITLET_DIR, "HEAD");
+    public static final File index = join(GITLET_DIR, "index");
+    public static final File commits = join(GITLET_DIR, "commits");
 
     /** set up the .gitlet directory, init command.*/
     private class RepoExistException extends Exception{
@@ -44,12 +49,6 @@ public class Repository {
             System.out.println("A Gitlet version control system already exists in the current directory");
             return;
         }
-        File refs = join(GITLET_DIR, "refs");
-        File objects = join(GITLET_DIR, "objects");
-        File logs = join(GITLET_DIR, "logs");
-        File HEAD = join(GITLET_DIR, "HEAD");
-        File index = join(GITLET_DIR, "index");
-        File commits = join(GITLET_DIR, "commits");
         GITLET_DIR.mkdir();
         refs.mkdir();
         objects.mkdir();
@@ -76,7 +75,6 @@ public class Repository {
             return;
         }
         //get current staging area
-        File index = join(GITLET_DIR, "index");
         if(!index.exists()){
             StagingArea stage = new StagingArea();
             stage.saveStage();
@@ -132,11 +130,10 @@ public class Repository {
 
         /**read staging area data, use the staging area in order to modify the
          * files tracked by the new commit*/
-        File index = join(GITLET_DIR, "index");
-
         StagingArea stage = readObject(index, StagingArea.class);
         HashMap<String, String> stageAdd = stage.getStageAdd();
         HashMap<String, String> stageRemove = stage.getStageRemove();
+
         /**read parentCommit tree*/
         HashMap<String , String > parentTree = parentCommit.getTree();
         String parentCommitMessage = parentCommit.getMessage();
@@ -168,7 +165,6 @@ public class Repository {
     }
 
     private void writeCommits(String hash){
-        File commits = join(GITLET_DIR, "commits");
         String contents = readContentsAsString(commits);
         contents = contents + "\n" + hash;
         writeContents(commits, contents);
@@ -176,7 +172,6 @@ public class Repository {
 
     public void rm(String name){
         /** read staging area and current commit*/
-        File index = join(GITLET_DIR, "index");
         File file = join(CWD, name);
         StagingArea stage = readObject(index, StagingArea.class);
         HashMap<String, String> stageAdd = stage.getStageAdd();
@@ -236,7 +231,6 @@ public class Repository {
     }
 
     public void globallog(){
-        File objects = join(GITLET_DIR, "commits");
         String allCommits = readContentsAsString(objects);
         String[] files = allCommits.split("\n");
         Commit current;
@@ -270,43 +264,82 @@ public class Repository {
 
     public void status(){
         /**Branches*/
-        File HEAD = join(GITLET_DIR, "HEAD");
-        File refs = join(GITLET_DIR, "refs");
         File [] listOfFiles = refs.listFiles();
+        LinkedList<String > nameFiles = new LinkedList<>();
         String contents = readContentsAsString(HEAD);
         String [] headcontents = contents.split("/");
         String currentBranch = headcontents[1];
         System.out.println("=== Branches ===");
         System.out.println("*"+currentBranch);
+
+        List<String> fileName = new ArrayList<>();
         if(listOfFiles.length>1){
             for (int i = 1; i < listOfFiles.length; i ++){
-                System.out.println(listOfFiles[i].getName());
+                String name = listOfFiles[i].getName();
+                fileName.add(name);
+//                System.out.println(name);
             }
+            Collections.sort(fileName);
+            printList(fileName);
         }
-        System.out.println();
+
         /**Staged files*/
-        
+        StagingArea stage = readObject(index, StagingArea.class);
+        HashMap<String, String> stageAdd = stage.getStageAdd();
+        System.out.println("=== Staged Files ===");
+        List<String> stageName = new ArrayList<>();
+        for (String filename : stageAdd.keySet()){
+            stageName.add(filename);
+        }
+        printList(stageName);
+
         /**Removed files*/
+        HashMap<String, String> stageRemove = stage.getStageRemove();
+        System.out.println("=== Removed Files ===");
+        List<String> removeName = new ArrayList<>();
+        for (String filename : stageRemove.keySet()){
+            removeName.add(filename);
+        }
+        printList(removeName);
 
         /**Extra credit, not interested*/
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
     }
+
+    public void branch(String name){
+        Commit currentCommit = Commit.getCurrentConmmit();
+        String commitID = currentCommit.getCommitName();
+        File branch = join(refs, name);
+        writeContents(branch, commitID);
+    }
+
+    public void deleteBranch(String name){
+        deleteBranchCheck(name);
+        File BadBranch = join(refs, name);
+        BadBranch.delete();
+    }
+
+
 
     public static void main(String[] args){
         Repository repo1 = new Repository();
-//        GITLET_DIR.delete();
-//        repo1.init();
-//        repo1.add("ttt.txt");
-//        repo1.commit("save ttt.txt");
-//        repo1.add("test.txt");
-//        repo1.commit("2322");
-//        repo1.add("test2.txt");
-//        repo1.commit("2322");
-//        repo1.add("test1.txt");
-//        repo1.commit("2322");
-//        repo1.rm("test2.txt");
-//        repo1.commit("delete test2.txt");
-        repo1.status();
-
+        GITLET_DIR.delete();
+        repo1.init();
+        repo1.add("ttt.txt");
+        repo1.commit("save ttt.txt");
+        repo1.add("test.txt");
+//        repo1.status();
+        repo1.add("test2.txt");
+        repo1.commit("2322");
+        repo1.add("test1.txt");
+        repo1.commit("2322");
+        repo1.rm("test2.txt");
+//        repo1.status();
+        repo1.commit("delete test2.txt");
+        repo1.branch("master2");
 
     }
 }

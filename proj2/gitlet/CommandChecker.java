@@ -1,8 +1,8 @@
 package gitlet;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import org.checkerframework.checker.units.qual.A;
+
+import java.util.*;
 import java.io.File;
 import static gitlet.Utils.*;
 
@@ -105,4 +105,38 @@ public class CommandChecker {
             return;
         }
     }
+
+    public static void deleteBranchCheck(String name){
+        File refs = Repository.refs;
+        File [] listOfFiles = refs.listFiles();
+        HashSet<String> filenames = new HashSet<>();
+        for (File file : listOfFiles){
+            filenames.add(file.getName());
+        }
+        String message1 = "A branch with that name does not exist.";
+        try {
+            if(!filenames.contains(name)){
+                throw new GitletException(message1);
+            }
+        }
+        catch (GitletException exception){
+            System.out.println(message1);
+            return;
+        }
+
+        String message2 = "Can not remove the current branch.";
+        String contents = readContentsAsString(Repository.HEAD);
+        String [] headcontents = contents.split("/");
+        String currentBranch = headcontents[1];
+        try {
+            if(currentBranch.equals(name)){
+                throw new GitletException(message2);
+            }
+        }
+        catch (GitletException exception){
+            System.out.println(message2);
+            return;
+        }
+    }
+
 }
