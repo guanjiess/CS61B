@@ -76,7 +76,11 @@ public class Main {
                 newRepo.deleteBranch(thisIsBad, "rm-branch");
                 break;
             case "reset":
-
+                if(!folderCheck()) return;
+                if(!validateNumArgs("reset", args, 2)) return;
+                String resetTo = args[1];
+                newRepo.reset(resetTo);
+                break;
             case "merge":
 
         }

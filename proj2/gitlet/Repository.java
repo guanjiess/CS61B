@@ -1,5 +1,6 @@
 package gitlet;
 
+import org.apache.commons.math3.random.StableRandomGenerator;
 import org.checkerframework.checker.units.qual.C;
 import org.w3c.dom.css.CSSStyleRule;
 
@@ -344,6 +345,7 @@ public class Repository {
                 break;
         }
     }
+
     private void checkout1(String file, Commit commit){
         /** update the file in current commit, put it in working directory*/
         HashMap<String , String> files = commit.getTree();
@@ -362,7 +364,49 @@ public class Repository {
         checkout1(name, requiredCommit);
     }
     private void checkout3(String branch){
-        BranchCheck(branch, "checkout");
+        /**check if there's no such branch or already in the branch*/
+        boolean branchExist = BranchCheck(branch, "checkout");
+        if(!branchExist){
+            return;
+        }
+        /**check if there's working file untracked in current commit*/
+        Commit currentCommit = Commit.getCurrentConmmit();
+        HashMap<String, String> tree = currentCommit.getTree();
+        List<String> filesCWD = plainFilenamesIn(CWD);
+        boolean checkCWD = checkoutFileCompare(tree, filesCWD);
+        if(!checkCWD){
+            return;
+        }
+        /**put files in CWD*/
+        File branchFile = join(refs, branch);
+        String branchhead = readContentsAsString(branchFile);
+        Commit branchHEAD = Commit.loadCommit(branchhead);
+        HashMap<String, String> branchHeadFile = branchHEAD.getTree();
+        /** delete files that do not exist in branchHEAD*/
+        for (String file : filesCWD){
+            if(!branchHeadFile.containsKey(file)){
+                rm(file);
+            }
+        }
+        writeFiles(branchHeadFile);
+        String newHEAD = "refs/"+branch;
+        writeContents(HEAD, newHEAD);
+        StagingArea stage = readObject(index, StagingArea.class);
+        stage.clearStage();
+        stage.saveStage();
+
+    }
+    private void writeFiles(HashMap<String, String> files){
+        Set<String> fileNames = files.keySet();
+        for (String name : fileNames){
+            String blobHash = files.get(name);
+            Blob blob = Blob.loadBlob(blobHash);
+            String contents = blob.getContents();
+            File newFile = join(CWD, name);
+            writeContents(newFile, contents);
+        }
+    }
+    public void reset(String commit){
 
     }
 
@@ -384,22 +428,35 @@ public class Repository {
         writeContents(thisFile, "No! It's test3!!!, edited first time");
         repo1.add("test2.txt");
         String commit4 = repo1.commit("edite test2 first time");
-
+        repo1.rm("test2.txt");
+        repo1.commit("delete test2.txt");
+        /**create a branch2*/
+        repo1.branch("branch2");
 
         /**overwrite test2.txt second time*/
         writeContents(thisFile, "Should be test4!, edited second time");
         repo1.add("test2.txt");
         String commit5 = repo1.commit("edite test2 first time");
 
-        String[] args2 = {"checkout",commit2,"--","test2.txt"};
-        String [] args3 = {"checkout",commit3,"--","test2.txt"};
-        String [] args4 = {"checkout",commit4,"--","test2.txt"};
-        String [] args5 = {"checkout",commit5,"--","test2.txt"};
+        repo1.add("test1.txt");
+        repo1.add("gitlet-design.md");
+        repo1.add("Makefile");
+        repo1.add("pom.xml");
+        String commit6 = repo1.commit("add official files");
 
-        /**contents should be "No! It's test3!!!, edited first time"*/
+        String [] args2 = {"checkout","branch3"};
+        String [] args3 = {"checkout","master"};
+        String [] args4 = {"checkout","mast2"};
+        String [] args5 = {"checkout","branch2"};
+
         repo1.checkout(args2);
         repo1.checkout(args3);
         repo1.checkout(args4);
         repo1.checkout(args5);
+        repo1.checkout(args3);
+
+
+
+
     }
 }

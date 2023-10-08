@@ -53,17 +53,5 @@ public class Blob implements Serializable{
     }
 
     public static void main(String[] args){
-        File newFile = join(Repository.CWD, "test.txt");
-        String fileContent = readContentsAsString(newFile);
-        String fileHash = sha1(fileContent);
-        System.out.println("File content is: " + fileContent);
-        System.out.println("File SHA-1 is: " + fileHash);
-        // create and save the new blob object
-        Blob blob = new Blob(fileHash, fileContent, "test2.txt");
-        blob.saveBlob();
-        Blob fromFile = loadBlob("5d03965084a5db13c178cbb1ffc120b360353685");
-        System.out.println("Read from file: " + fromFile.ID);
-        System.out.println("Read from file: " + fromFile.contents);
-        System.out.println("Read from file: " + fromFile.fileHash);
     }
 }

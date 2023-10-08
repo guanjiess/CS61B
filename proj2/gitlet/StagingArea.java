@@ -20,6 +20,10 @@ public class StagingArea implements Serializable {
     public void setStageRemove(HashMap<String , String> stageRemove){
         this.stageRemove = stageRemove;
     }
+    public void clearStage(){
+        this.stageAdd.clear();
+        this.stageRemove.clear();
+    }
     public HashMap<String, String> getStageAdd(){
         return this.stageAdd;
     }

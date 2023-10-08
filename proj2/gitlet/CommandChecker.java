@@ -124,6 +124,7 @@ public class CommandChecker {
             MESSAGE1 = message1;
             MESSAGE2 = message3;
         }
+
         if(cmd.equals("checkout")){
             MESSAGE1 = message2;
             MESSAGE2 = message4;
@@ -138,20 +139,37 @@ public class CommandChecker {
             return false;
         }
 
-        String contents = readContentsAsString(Repository.HEAD);
-        String [] headcontents = contents.split("/");
-        String currentBranch = headcontents[1];
-        try {
-            if(currentBranch.equals(name)){
-                throw new GitletException(MESSAGE2);
+        if(cmd.equals("rm-branch")){
+            String contents = readContentsAsString(Repository.HEAD);
+            String [] headcontents = contents.split("/");
+            String currentBranch = headcontents[1];
+            try {
+                if(currentBranch.equals(name)){
+                    throw new GitletException(MESSAGE2);
+                }
+            }
+            catch (GitletException exception){
+                System.out.println(MESSAGE2);
+                return false;
             }
         }
-        catch (GitletException exception){
-            System.out.println(MESSAGE2);
-            return false;
+
+        if(cmd.equals("checkout")){
+            String contents = readContentsAsString(Repository.HEAD);
+            String [] headcontents = contents.split("/");
+            String currentBranch = headcontents[1];
+            try {
+                if(currentBranch.equals(name)){
+                    throw new GitletException(MESSAGE2);
+                }
+            }
+            catch (GitletException exception){
+                System.out.println(MESSAGE2);
+            }
         }
         return true;
     }
+
 
     public static boolean fileCheck(String name, HashMap<String, String> tree){
         boolean exist = tree.containsKey(name);
@@ -164,9 +182,28 @@ public class CommandChecker {
         }
         return exist;
     }
-    public static void branchCheck(){
-
+    public static boolean checkoutFileCompare(HashMap<String, String> tree, List<String> files){
+        String name = "";
+        boolean contains = true;
+        /**take each file's name and compare it*/
+        for (int i = 0; i < files.size(); i++){
+            name = files.get(i);
+            if(!tree.containsKey(name)){
+                contains = false;
+                break;
+            }
+        }
+        try{
+            if(!contains) throw new GitletException("error");
+        }
+        catch (GitletException exception){
+            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+            return false;
+        }
+        return true;
     }
+
+
     public static boolean commitExist(String commit){
         boolean exist = false;
         File objects = join(Repository.GITLET_DIR, "commits");
