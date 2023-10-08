@@ -106,38 +106,86 @@ public class CommandChecker {
         }
     }
 
-    public static boolean deleteBranchCheck(String name){
+    public static boolean BranchCheck(String name, String cmd){
         File refs = Repository.refs;
         File [] listOfFiles = refs.listFiles();
         HashSet<String> filenames = new HashSet<>();
         for (File file : listOfFiles){
             filenames.add(file.getName());
         }
+
         String message1 = "A branch with that name does not exist.";
+        String message2 = "No such branch exists.";
+        String message3 = "Can not remove the current branch.";
+        String message4 = "No need to checkout the current branch.";
+        String MESSAGE1 = message1;
+        String MESSAGE2 = message3;
+        if(cmd.equals("rm-branch")){
+            MESSAGE1 = message1;
+            MESSAGE2 = message3;
+        }
+        if(cmd.equals("checkout")){
+            MESSAGE1 = message2;
+            MESSAGE2 = message4;
+        }
         try {
             if(!filenames.contains(name)){
-                throw new GitletException(message1);
+                throw new GitletException(MESSAGE1);
             }
         }
         catch (GitletException exception){
-            System.out.println(message1);
+            System.out.println(MESSAGE1);
             return false;
         }
 
-        String message2 = "Can not remove the current branch.";
         String contents = readContentsAsString(Repository.HEAD);
         String [] headcontents = contents.split("/");
         String currentBranch = headcontents[1];
         try {
             if(currentBranch.equals(name)){
-                throw new GitletException(message2);
+                throw new GitletException(MESSAGE2);
             }
         }
         catch (GitletException exception){
-            System.out.println(message2);
+            System.out.println(MESSAGE2);
             return false;
         }
         return true;
     }
+
+    public static boolean fileCheck(String name, HashMap<String, String> tree){
+        boolean exist = tree.containsKey(name);
+        try{
+            if(!exist) throw new GitletException("File does not exist in that commit.");
+        }
+        catch (GitletException exception){
+            System.out.println("File does not exist in that commit.");
+            return false;
+        }
+        return exist;
+    }
+    public static void branchCheck(){
+
+    }
+    public static boolean commitExist(String commit){
+        boolean exist = false;
+        File objects = join(Repository.GITLET_DIR, "commits");
+        String allCommits = readContentsAsString(objects);
+        String[] files = allCommits.split("\n");
+        for (int i = 0; i < files.length; i++ ){
+            if(files[i].equals(commit)) exist = true;
+        }
+        try {
+            if(!exist)
+                throw new GitletException("No commit with that id exists.");
+        }
+        catch (GitletException exception){
+            System.out.println("No commit with that id exists.");
+            return false;
+        }
+        return true;
+    }
+
+
 
 }

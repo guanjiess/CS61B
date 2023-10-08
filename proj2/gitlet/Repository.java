@@ -1,5 +1,6 @@
 package gitlet;
 
+import org.checkerframework.checker.units.qual.C;
 import org.w3c.dom.css.CSSStyleRule;
 
 import java.io.File;
@@ -316,35 +317,89 @@ public class Repository {
         writeContents(branch, commitID);
     }
 
-    public void deleteBranch(String name){
-        boolean valid = deleteBranchCheck(name);
+    public void deleteBranch(String name, String cmd){
+        boolean valid = BranchCheck(name, "rm-branch");
         File BadBranch = join(refs, name);
         if(valid){
             BadBranch.delete();
         }
     }
 
+    public void checkout(String[] args){
+        String filename;
+        switch (args.length){
+            case 2 :
+                String branch = args[1];
+                checkout3(branch);
+                break;
+            case 3:
+                filename = args[2];
+                Commit currentCommit = Commit.getCurrentConmmit();
+                checkout1(filename, currentCommit);
+                break;
+            case 4:
+                String commitHash = args[1];
+                filename = args[3];
+                checkout2(commitHash, filename);
+                break;
+        }
+    }
+    private void checkout1(String file, Commit commit){
+        /** update the file in current commit, put it in working directory*/
+        HashMap<String , String> files = commit.getTree();
+        boolean exist = fileCheck(file, files);
+        if(!exist) return;
+        String fileBlobHash = files.get(file);
+        Blob commitFile = Blob.loadBlob(fileBlobHash);
+        String contents = commitFile.getContents();
+        File thisFile = join(CWD, file);
+        writeContents(thisFile, contents);
+    }
+    private void checkout2(String commitHash, String name){
+        boolean exist = commitExist(commitHash);
+        if(!exist) return;
+        Commit requiredCommit = Commit.loadCommit(commitHash);
+        checkout1(name, requiredCommit);
+    }
+    private void checkout3(String branch){
+        BranchCheck(branch, "checkout");
+
+    }
 
 
     public static void main(String[] args){
         Repository repo1 = new Repository();
-//        GITLET_DIR.delete();
         repo1.init();
         repo1.add("ttt.txt");
-        repo1.commit("save ttt.txt");
         repo1.add("test.txt");
-//        repo1.status();
-        repo1.add("test2.txt");
-        repo1.commit("2322");
-        repo1.add("test1.txt");
-        repo1.commit("2322");
-        repo1.rm("test2.txt");
-//        repo1.status();
-        repo1.commit("delete test2.txt");
-        repo1.branch("master2");
-        repo1.deleteBranch("sdafs");
-        repo1.deleteBranch("master");
-        repo1.deleteBranch("master2");
+        String commit2 = repo1.commit("save ttt.txt, test.txt");
+        String[] args1 = {"checkout","--","test2.txt"};
+        /**there is no test2.txt*/
+        repo1.checkout(args1);
 
+        repo1.add("test2.txt");
+        String commit3 = repo1.commit("add test2.txt");
+        /**overwrite test2.txt first time*/
+        File thisFile = join(CWD, "test2.txt");
+        writeContents(thisFile, "No! It's test3!!!, edited first time");
+        repo1.add("test2.txt");
+        String commit4 = repo1.commit("edite test2 first time");
+
+
+        /**overwrite test2.txt second time*/
+        writeContents(thisFile, "Should be test4!, edited second time");
+        repo1.add("test2.txt");
+        String commit5 = repo1.commit("edite test2 first time");
+
+        String[] args2 = {"checkout",commit2,"--","test2.txt"};
+        String [] args3 = {"checkout",commit3,"--","test2.txt"};
+        String [] args4 = {"checkout",commit4,"--","test2.txt"};
+        String [] args5 = {"checkout",commit5,"--","test2.txt"};
+
+        /**contents should be "No! It's test3!!!, edited first time"*/
+        repo1.checkout(args2);
+        repo1.checkout(args3);
+        repo1.checkout(args4);
+        repo1.checkout(args5);
     }
 }

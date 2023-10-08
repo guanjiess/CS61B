@@ -60,7 +60,9 @@ public class Main {
                 newRepo.status();
                 break;
             case "checkout":
-
+                if(!folderCheck()) return;
+                newRepo.checkout(args);
+                break;
             case "branch":
                 if(!folderCheck()) return;
                 if(!validateNumArgs("branch", args, 2)) return;
@@ -71,7 +73,7 @@ public class Main {
                 if(!folderCheck()) return;
                 if(!validateNumArgs("rm-branch", args, 2)) return;
                 String thisIsBad = args[1];
-                newRepo.deleteBranch(thisIsBad);
+                newRepo.deleteBranch(thisIsBad, "rm-branch");
                 break;
             case "reset":
 
