@@ -317,16 +317,18 @@ public class Repository {
     }
 
     public void deleteBranch(String name){
-        deleteBranchCheck(name);
+        boolean valid = deleteBranchCheck(name);
         File BadBranch = join(refs, name);
-        BadBranch.delete();
+        if(valid){
+            BadBranch.delete();
+        }
     }
 
 
 
     public static void main(String[] args){
         Repository repo1 = new Repository();
-        GITLET_DIR.delete();
+//        GITLET_DIR.delete();
         repo1.init();
         repo1.add("ttt.txt");
         repo1.commit("save ttt.txt");
@@ -340,6 +342,9 @@ public class Repository {
 //        repo1.status();
         repo1.commit("delete test2.txt");
         repo1.branch("master2");
+        repo1.deleteBranch("sdafs");
+        repo1.deleteBranch("master");
+        repo1.deleteBranch("master2");
 
     }
 }

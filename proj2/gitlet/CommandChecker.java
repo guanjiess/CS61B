@@ -106,7 +106,7 @@ public class CommandChecker {
         }
     }
 
-    public static void deleteBranchCheck(String name){
+    public static boolean deleteBranchCheck(String name){
         File refs = Repository.refs;
         File [] listOfFiles = refs.listFiles();
         HashSet<String> filenames = new HashSet<>();
@@ -121,7 +121,7 @@ public class CommandChecker {
         }
         catch (GitletException exception){
             System.out.println(message1);
-            return;
+            return false;
         }
 
         String message2 = "Can not remove the current branch.";
@@ -135,8 +135,9 @@ public class CommandChecker {
         }
         catch (GitletException exception){
             System.out.println(message2);
-            return;
+            return false;
         }
+        return true;
     }
 
 }
