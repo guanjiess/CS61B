@@ -1,9 +1,5 @@
 package gitlet;
 
-import org.apache.commons.math3.random.StableRandomGenerator;
-import org.checkerframework.checker.units.qual.C;
-import org.w3c.dom.css.CSSStyleRule;
-
 import java.io.File;
 import java.util.*;
 
@@ -114,7 +110,7 @@ public class Repository {
         stage.saveStage();
         Blob blob = new Blob(fileHash, fileContent, name);
         blob.saveBlob();
-        System.out.println("add, "+"stageAdd is: " + stageAdd);
+//        System.out.println("add, "+"stageAdd is: " + stageAdd);
     }
     private boolean checkAlreadyExists(HashMap<String, String> stageAdd, String hash, String name){
         for (String key : stageAdd.keySet()){
@@ -183,8 +179,8 @@ public class Repository {
         /** check if file exists*/
         boolean fileExist = rmFileCheck(stageAdd, tree, name);
         if(!fileExist){
-            System.out.println("rm," + "stageAdd is: " + stageAdd);
-            System.out.println("rm," + "stageRemove is: " + stageRemove);
+//            System.out.println("rm," + "stageAdd is: " + stageAdd);
+//            System.out.println("rm," + "stageRemove is: " + stageRemove);
             return;
         }
         boolean stageAddContains = stageAdd.containsKey(name);
@@ -206,8 +202,8 @@ public class Repository {
         stage.setStageRemove(stageRemove);
         stage.setStageAdd(stageAdd);
         stage.saveStage();
-        System.out.println("rm," + "stageAdd is: " + stageAdd);
-        System.out.println("rm," + "stageRemove is: " + stageRemove);
+//        System.out.println("rm," + "stageAdd is: " + stageAdd);
+//        System.out.println("rm," + "stageRemove is: " + stageRemove);
     }
 
     public void log(){
@@ -454,9 +450,6 @@ public class Repository {
         repo1.checkout(args4);
         repo1.checkout(args5);
         repo1.checkout(args3);
-
-
-
 
     }
 }
