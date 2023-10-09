@@ -1,5 +1,7 @@
 package gitlet;
 
+import jh61b.junit.In;
+
 import java.io.File;
 import java.util.*;
 
@@ -40,12 +42,9 @@ public class Repository {
         }
     }
     public void init(){
-        try {
-            if(GITLET_DIR.exists()) throw new RepoExistException("RepoExistException, Gitlet folder already exists!");
-        }
-        catch (RepoExistException exception){
+        if(GITLET_DIR.exists()){
             System.out.println("A Gitlet version control system already exists in the current directory");
-            return;
+            System.exit(0);
         }
         GITLET_DIR.mkdir();
         refs.mkdir();
@@ -406,50 +405,72 @@ public class Repository {
 
     }
 
+    public void merge(String branch){
+        StagingArea stage = readObject(index, StagingArea.class);
+        stageIsEmpty(stage);
+        branchExist(branch);
+        branchSameAsCurr(branch);
+        /** get split point*/
+        String currentBranch = getCurrentBranch();
+        Commit currentCommit = Commit.getCurrentConmmit();
+        Commit branchCommit = getBranchCommit(branch);
+        Commit splitCommit = getSplitCommit(currentCommit, branchCommit );
+
+        /**find 8 situations*/
+
+
+        /**set*/
+
+    }
+    private Commit getBranchCommit(String branch){
+        File theBranch = join(refs, branch);
+        String commitName = readContentsAsString(theBranch);
+        Commit branchCommit = Commit.loadCommit(commitName);
+        return branchCommit;
+    }
+    public Commit getSplitCommit(Commit commitA, Commit commitB){
+        HashMap<String, Integer> commitTreeA = commitTree(commitA);
+        HashMap<String, Integer> commitTreeB = commitTree(commitB);
+        int min = Integer.MAX_VALUE;
+        String split = "";
+        for (String commit : commitTreeA.keySet()){
+            if(commitTreeB.containsKey(commit)){
+                if(commitTreeA.get(commit) < min){
+                    min = commitTreeA.get(commit);
+                    split = commit;
+                }
+            }
+        }
+        Commit splitCommit = Commit.loadCommit(split);
+        return splitCommit;
+    }
+
+    private HashMap<String, Integer> commitTree(Commit start){
+        HashMap<String, Integer> commitInBranch = new HashMap<>();
+        int depth = 1;
+        String commitID = start.getCommitName();
+        commitInBranch.put(commitID, depth);
+        String parentID = start.getParent();
+        Commit parent = Commit.loadCommit(parentID);
+        while (parentID != null){
+            depth ++;
+            commitInBranch.put(parentID, depth);
+            parent = Commit.loadCommit(parentID);
+            parentID = parent.getParent();
+        }
+        depth ++;
+        commitInBranch.put(parentID, depth);
+        return commitInBranch;
+    }
+
 
     public static void main(String[] args){
-        Repository repo1 = new Repository();
-        repo1.init();
-        repo1.add("ttt.txt");
-        repo1.add("test.txt");
-        String commit2 = repo1.commit("save ttt.txt, test.txt");
-        String[] args1 = {"checkout","--","test2.txt"};
-        /**there is no test2.txt*/
-        repo1.checkout(args1);
 
-        repo1.add("test2.txt");
-        String commit3 = repo1.commit("add test2.txt");
-        /**overwrite test2.txt first time*/
-        File thisFile = join(CWD, "test2.txt");
-        writeContents(thisFile, "No! It's test3!!!, edited first time");
-        repo1.add("test2.txt");
-        String commit4 = repo1.commit("edite test2 first time");
-        repo1.rm("test2.txt");
-        repo1.commit("delete test2.txt");
-        /**create a branch2*/
-        repo1.branch("branch2");
 
-        /**overwrite test2.txt second time*/
-        writeContents(thisFile, "Should be test4!, edited second time");
-        repo1.add("test2.txt");
-        String commit5 = repo1.commit("edite test2 first time");
-
-        repo1.add("test1.txt");
-        repo1.add("gitlet-design.md");
-        repo1.add("Makefile");
-        repo1.add("pom.xml");
-        String commit6 = repo1.commit("add official files");
-
-        String [] args2 = {"checkout","branch3"};
-        String [] args3 = {"checkout","master"};
-        String [] args4 = {"checkout","mast2"};
-        String [] args5 = {"checkout","branch2"};
-
-        repo1.checkout(args2);
-        repo1.checkout(args3);
-        repo1.checkout(args4);
-        repo1.checkout(args5);
-        repo1.checkout(args3);
+//        repo1.merge(args2);
+//        repo1.merge(args3);
+//        repo1.merge(args4);
+//        repo1.merge(args3);
 
     }
 }

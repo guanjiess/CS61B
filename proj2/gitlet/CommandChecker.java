@@ -220,7 +220,32 @@ public class CommandChecker {
         }
         return true;
     }
+    public static void stageIsEmpty(StagingArea stage){
+        HashMap<String, String> stageAdd = stage.getStageAdd();
+        HashMap<String, String> stageRemove = stage.getStageRemove();
+        boolean addEmpty = stageAdd.isEmpty();
+        boolean removeEmpty = stageRemove.isEmpty();
+        if(!addEmpty && removeEmpty){
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+    }
 
-
-
+    public static void branchExist(String branch){
+        File refs = Repository.refs;
+        List<String> branches = plainFilenamesIn(refs);
+        boolean contain = branches.contains(branch);
+        if (!contain){
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+    }
+    public static void branchSameAsCurr(String branch){
+        String currentBranch = getCurrentBranch();
+        boolean same = currentBranch.equals(branch);
+        if(same){
+            System.out.println("Can not merge a branch with itself.");
+            System.exit(0);
+        }
+    }
 }

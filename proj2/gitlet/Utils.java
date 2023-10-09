@@ -259,6 +259,26 @@ class Utils {
         }
         System.out.println();
     }
+    public static String getCurrentBranch(){
+        String contents = readContentsAsString(Repository.HEAD);
+        String [] headcontents = contents.split("/");
+        String currentBranch = headcontents[1];
+        return currentBranch;
+    }
+
+    // create deleteDirectory() for deleting sub directories and files
+    public static void deleteDirectory(File file)
+    {
+        // use listFiles() method for getting sub files
+        for (File subfile : file.listFiles()) {
+            // if the subfile is a folder, recursively call the deleteDirectory()method
+            if (subfile.isDirectory()) {    // isDirectory() method is used to check whether subfile is a folder or not
+                deleteDirectory(subfile);
+            }
+            // use delete() method for deleting file and empty folder
+            subfile.delete();
+        }
+    }
 
 
 

@@ -82,7 +82,10 @@ public class Main {
                 newRepo.reset(resetTo);
                 break;
             case "merge":
-
+                if(!folderCheck()) return;
+                if(!validateNumArgs("merge", args, 2)) return;
+                newRepo.merge(args[1]);
+                break;
         }
     }
 }

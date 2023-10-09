@@ -2,6 +2,8 @@ package gitlet;
 
 // TODO: any imports you need here
 
+import jh61b.junit.In;
+
 import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
